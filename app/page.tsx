@@ -20,7 +20,7 @@ export default async function Home() {
           <a key={c.id} href={`/category/${c.slug}`} className="badge hover:bg-brand-100">{c.name}</a>
         ))}
       </div>
-      <ul className="grid">
+      <ul className="asset-grid">
         {assets.map(a => (
           <li key={a.id}><AssetCard asset={a} /></li>
         ))}
