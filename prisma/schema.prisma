@@ -114,6 +114,9 @@ model Order {
   createdAt       DateTime  @default(now())
   items           OrderItem[]
 
+  // ➜ Add this line:
+  purchases       Purchase[]
+
   @@index([userId])
 }
 
@@ -137,7 +140,7 @@ model Purchase {
   asset      Asset    @relation(fields: [assetId], references: [id])
 
   orderId    String
-  order      Order    @relation(fields: [orderId], references: [id])
+  order      Order    @relation(fields: [orderId], references: [id])  // ← this now has a back-relation
 
   createdAt  DateTime @default(now())
   licenseKey String
@@ -145,5 +148,4 @@ model Purchase {
   @@unique([userId, assetId])
   @@index([orderId])
 }
-
 
