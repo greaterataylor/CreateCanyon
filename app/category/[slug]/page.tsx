@@ -8,7 +8,7 @@ export default async function CategoryPage({ params }: { params: { slug: string 
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-bold">Category: {cat.name}</h1>
-      <ul className="grid">
+      <ul className="asset-grid">
         {assets.map(a => <li key={a.id}><AssetCard asset={a} /></li>)}
       </ul>
     </div>
