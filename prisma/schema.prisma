@@ -131,13 +131,17 @@ model Purchase {
   id         String   @id @default(cuid())
   userId     String
   user       User     @relation(fields: [userId], references: [id])
+
   assetId    String
   asset      Asset    @relation(fields: [assetId], references: [id])
+
   orderId    String
   order      Order    @relation(fields: [orderId], references: [id])
+
   createdAt  DateTime @default(now())
   licenseKey String
 
   @@unique([userId, assetId])
   @@index([orderId])
 }
+
