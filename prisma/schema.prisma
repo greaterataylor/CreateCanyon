@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum VendorStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum AssetStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PreviewType {
+  IMAGE
+  AUDIO
+  VIDEO
+  CODE
+  FILE
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String?
+  passwordHash  String
+  role          Role           @default(USER)
+  createdAt     DateTime       @default(now())
+  vendorProfile VendorProfile?
+  orders        Order[]
+  purchases     Purchase[]
+}
+
+model Site {
+  id         String     @id @default(cuid())
+  slug       String     @unique
+  name       String
+  domain     String?
+  theme      Json?
+  createdAt  DateTime   @default(now())
+  categories Category[]
+  assets     Asset[]
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  siteId    String
+  site      Site     @relation(fields: [siteId], references: [id])
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  assets    Asset[]
+
+  @@index([siteId])
+}
+
+model VendorProfile {
+  id          String       @id @default(cuid())
+  userId      String       @unique
+  user        User         @relation(fields: [userId], references: [id])
+  displayName String
+  bio         String?
+  status      VendorStatus @default(PENDING)
+  createdAt   DateTime     @default(now())
+  assets      Asset[]
+}
+
+model Asset {
+  id           String       @id @default(cuid())
+  siteId       String
+  site         Site         @relation(fields: [siteId], references: [id])
+  vendorId     String
+  vendor       VendorProfile @relation(fields: [vendorId], references: [id])
+  categoryId   String
+  category     Category     @relation(fields: [categoryId], references: [id])
+  title        String
+  description  String
+  priceCents   Int
+  currency     String       @default("USD")
+  previewType  PreviewType
+  previewUrl   String?
+  downloadKey  String
+  status       AssetStatus  @default(PENDING)
+  createdAt    DateTime     @default(now())
+  orderItems   OrderItem[]
+  purchases    Purchase[]
+
+  @@index([siteId, status, categoryId])
+  @@index([vendorId])
+}
+
+model Order {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  totalCents      Int
+  currency        String    @default("USD")
+  status          String    @default("created")
+  stripeSessionId String?   @unique
+  createdAt       DateTime  @default(now())
+  items           OrderItem[]
+
+  @@index([userId])
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  assetId   String
+  asset     Asset   @relation(fields: [assetId], references: [id])
+  priceCents Int
+  quantity  Int     @default(1)
+}
+
+model Purchase {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  assetId    String
+  asset      Asset    @relation(fields: [assetId], references: [id])
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id])
+  createdAt  DateTime @default(now())
+  licenseKey String
+
+  @@unique([userId, assetId])
+  @@index([orderId])
+}
