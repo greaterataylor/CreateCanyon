@@ -1,3 +1,4 @@
+//lib/permissions.ts
 import { AssetStatus, VendorStatus } from '@prisma/client'
 
 export const canSeeAsset = (status: AssetStatus) => status === 'APPROVED'
