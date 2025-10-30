@@ -1,3 +1,4 @@
+//app/admin/categories/page.tsx
 import { prisma } from '@/lib/prisma'
 import { requireAdmin } from '@/lib/auth'
 
