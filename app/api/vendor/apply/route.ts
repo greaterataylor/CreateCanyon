@@ -1,3 +1,4 @@
+//app/api/vendor/apply/route.ts
 import { NextResponse } from 'next/server'
 import { requireUser } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
