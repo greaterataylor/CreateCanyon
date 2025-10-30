@@ -1,3 +1,4 @@
+//components/AssetCard.tsx
 import Link from 'next/link'
 import { Asset, PreviewType } from '@prisma/client'
 
