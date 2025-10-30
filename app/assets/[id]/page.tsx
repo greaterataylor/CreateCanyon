@@ -2,11 +2,17 @@
 import { prisma } from '@/lib/prisma'
 import { ImageViewer, AudioPlayer, VideoPlayer, CodePreview } from '@/components/Players'
 import { currentUser } from '@/lib/auth'
-import Link from 'next/link'
 
-export default async function AssetDetail({ params }: { params: { id: string } }) {
-  const asset = await prisma.asset.findUnique({ where: { id: params.id }, include: { vendor: { include: { user: true } }, category: true, site: true } })
+type Params = Promise<{ id: string }>
+
+export default async function AssetDetail({ params }: { params: Params }) {
+  const { id } = await params
+  const asset = await prisma.asset.findUnique({
+    where: { id },
+    include: { vendor: { include: { user: true } }, category: true, site: true }
+  })
   if (!asset || asset.status !== 'APPROVED') return <div>Asset not found</div>
+
   const user = await currentUser()
   const purchased = user ? await prisma.purchase.findFirst({ where: { userId: user.id, assetId: asset.id } }) : null
 
