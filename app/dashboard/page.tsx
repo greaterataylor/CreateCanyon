@@ -1,3 +1,4 @@
+//app/dashboard/page.tsx
 import { currentUser } from '@/lib/auth'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
