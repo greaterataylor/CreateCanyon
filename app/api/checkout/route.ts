@@ -1,16 +1,21 @@
 //app/api/checkout/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { stripe } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
 import { requireUser } from '@/lib/auth'
+import { getStripe } from '@/lib/stripe'   // ← change
 
 export async function POST(req: NextRequest) {
   const user = await requireUser()
   const form = await req.formData()
   const assetId = form.get('assetId')?.toString()
   if (!assetId) return NextResponse.json({ error: 'Missing assetId' }, { status: 400 })
+
   const asset = await prisma.asset.findUnique({ where: { id: assetId } })
-  if (!asset || asset.status !== 'APPROVED') return NextResponse.json({ error: 'Asset unavailable' }, { status: 400 })
+  if (!asset || asset.status !== 'APPROVED') {
+    return NextResponse.json({ error: 'Asset unavailable' }, { status: 400 })
+  }
+
+  const stripe = getStripe() // ← instantiate at request-time
 
   const order = await prisma.order.create({
     data: {
@@ -18,7 +23,7 @@ export async function POST(req: NextRequest) {
       totalCents: asset.priceCents,
       currency: asset.currency,
       status: 'created',
-      items: { create: [{ assetId: asset.id, priceCents: asset.priceCents, quantity: 1 }]}
+      items: { create: [{ assetId: asset.id, priceCents: asset.priceCents, quantity: 1 }] }
     }
   })
 
@@ -41,3 +46,7 @@ export async function POST(req: NextRequest) {
   await prisma.order.update({ where: { id: order.id }, data: { stripeSessionId: session.id } })
   return NextResponse.redirect(session.url!, { status: 303 })
 }
+
+// These keep the route purely dynamic & on Node runtime (good for Stripe)
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
