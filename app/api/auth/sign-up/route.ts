@@ -1,3 +1,4 @@
+//app/api/auth/sign-up/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { hashPassword, createSessionCookie } from '@/lib/auth'
