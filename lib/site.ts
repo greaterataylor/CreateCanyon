@@ -1,3 +1,4 @@
+//lib/site.ts
 import { prisma } from './prisma'
 
 export async function getSite() {
