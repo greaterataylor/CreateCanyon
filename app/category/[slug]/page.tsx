@@ -1,3 +1,4 @@
+//app/category/[slug]/page.tsx
 import { prisma } from '@/lib/prisma'
 import AssetCard from '@/components/AssetCard'
 
