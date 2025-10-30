@@ -1,5 +1,5 @@
 //lib/auth.ts
-import { cookies, headers } from 'next/headers'
+import { cookies } from 'next/headers'
 import { SignJWT, jwtVerify } from 'jose'
 import bcrypt from 'bcryptjs'
 import { prisma } from './prisma'
@@ -24,7 +24,9 @@ export async function createSessionCookie(payload: Session) {
     .setIssuedAt()
     .setExpirationTime('7d')
     .sign(secret)
-  cookies().set(SESSION_COOKIE, token, {
+
+  const cookieStore = await cookies()
+  cookieStore.set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
@@ -32,12 +34,14 @@ export async function createSessionCookie(payload: Session) {
   })
 }
 
-export function clearSessionCookie() {
-  cookies().set(SESSION_COOKIE, '', { path: '/', maxAge: 0 })
+export async function clearSessionCookie() {
+  const cookieStore = await cookies()
+  cookieStore.set(SESSION_COOKIE, '', { path: '/', maxAge: 0 })
 }
 
 export async function getSession(): Promise<Session | null> {
-  const token = cookies().get(SESSION_COOKIE)?.value
+  const cookieStore = await cookies()
+  const token = cookieStore.get(SESSION_COOKIE)?.value
   if (!token) return null
   try {
     const { payload } = await jwtVerify(token, secret)
