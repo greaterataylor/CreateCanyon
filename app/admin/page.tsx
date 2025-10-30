@@ -1,3 +1,4 @@
+//app/admin/page.tsx
 import { requireAdmin } from '@/lib/auth'
 
 export default async function AdminHome() {
