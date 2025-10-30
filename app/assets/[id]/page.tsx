@@ -1,3 +1,4 @@
+//app/assets/[id]/page.tsx
 import { prisma } from '@/lib/prisma'
 import { ImageViewer, AudioPlayer, VideoPlayer, CodePreview } from '@/components/Players'
 import { currentUser } from '@/lib/auth'
