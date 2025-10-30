@@ -1,3 +1,4 @@
+//scripts/seed.ts
 import { prisma } from '../lib/prisma'
 import { hashPassword } from '../lib/auth'
 
