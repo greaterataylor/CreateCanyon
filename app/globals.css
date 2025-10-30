@@ -1,5 +1,18 @@
-/* /app/globals.css */
 @import "tailwindcss";
+
+/* Register brand color tokens for Tailwind v4 */
+@theme {
+  --color-brand-50:  #f5f5ff;
+  --color-brand-100: #e5e7ff;
+  --color-brand-200: #c7ccff;
+  --color-brand-300: #a4adff;
+  --color-brand-400: #7e8bff;
+  --color-brand-500: #5c6cff;
+  --color-brand-600: #424fe6;
+  --color-brand-700: #333cc0;
+  --color-brand-800: #2a3199;
+  --color-brand-900: #1d2266;
+}
 
 :root {
   --brand-50: #f5f5ff;
@@ -17,18 +30,6 @@
 html, body, :root { height: 100%; }
 body { @apply bg-gray-50 text-gray-900; }
 .container { @apply mx-auto max-w-6xl px-4; }
-.btn { @apply inline-flex items-center justify-center px-4 py-2 rounded-md font-medium bg-brand-600 text-white hover:bg-brand-700 transition; }
-.btn-secondary { @apply inline-flex items-center justify-center px-4 py-2 rounded-md font-medium bg-gray-200 hover:bg-gray-300; }
-.input { @apply w-full border border-gray-300 rounded-md px-3 py-2; }
-.label { @apply text-sm font-medium text-gray-700; }
-.card { @apply bg-white border border-gray-200 rounded-lg shadow-sm; }
-.card-body { @apply p-4; }
-.badge { @apply inline-block px-2 py-1 rounded text-xs font-semibold bg-gray-100; }
-.table { @apply min-w-full text-sm; }
-.table th { @apply text-left font-semibold p-2 bg-gray-50 border-b; }
-.table td { @apply p-2 border-b; }
-.navlink { @apply hover:underline; }
-
-@layer components {
-  .asset-grid { @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4; }
-}
+.btn { @apply inline-flex items-center justify-center px-4 py-2 rounded-md font-medium text-white transition bg-brand-600; }
+/* if your build ever complains about variants inside @apply, split hover out like this: */
+.btn:hover { @apply bg-brand-700; }
