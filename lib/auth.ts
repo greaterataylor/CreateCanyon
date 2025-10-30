@@ -1,3 +1,4 @@
+//lib/auth.ts
 import { cookies, headers } from 'next/headers'
 import { SignJWT, jwtVerify } from 'jose'
 import bcrypt from 'bcryptjs'
