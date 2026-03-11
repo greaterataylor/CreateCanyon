@@ -10,10 +10,16 @@ export const metadata = {
   description: 'Multi-vendor creative assets marketplace'
 }
 
+export const dynamic = 'force-dynamic'
+
 async function getSiteName() {
   const slug = process.env.SITE_SLUG || 'CreateCanyon'
-  const site = await prisma.site.findUnique({ where: { slug } })
-  return site?.name || slug
+  try {
+    const site = await prisma.site.findUnique({ where: { slug } })
+    return site?.name || slug
+  } catch {
+    return slug
+  }
 }
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
