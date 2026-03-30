@@ -255,7 +255,7 @@ async function listChargeRefunds(stripe: any, charge: any) {
 
   try {
     while (true) {
-      const page = await stripe.refunds.list({
+      const page: { data: any[]; has_more: boolean } = await stripe.refunds.list({
         charge: chargeId,
         limit: 100,
         ...(startingAfter ? { starting_after: startingAfter } : {}),
