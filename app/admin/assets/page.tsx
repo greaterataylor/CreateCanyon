@@ -7,8 +7,9 @@ export const dynamic = 'force-dynamic'
 
 export default async function AdminAssets() {
   const site = await getActiveSite()
-  await requireAdminForSite(site.id)
-  const assets = await prisma.asset.findMany({ where: { siteId: site.id }, include: { vendor: true, category: true, versions: { where: { isCurrent: true }, take: 1 }, licenseOptions: { orderBy: { sortOrder: 'asc' } } }, orderBy: { createdAt: 'desc' } })
+  const siteId = site.id
+  await requireAdminForSite(siteId)
+  const assets = await prisma.asset.findMany({ where: { siteId }, include: { vendor: true, category: true, versions: { where: { isCurrent: true }, take: 1 }, licenseOptions: { orderBy: { sortOrder: 'asc' } } }, orderBy: { createdAt: 'desc' } })
 
   return (
     <div className="space-y-6">

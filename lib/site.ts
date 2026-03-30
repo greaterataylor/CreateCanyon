@@ -1,6 +1,7 @@
 import { headers } from 'next/headers'
 import type { NextRequest } from 'next/server'
 import { cache } from 'react'
+import type { Site } from '@prisma/client'
 import { prisma, isPrismaConnectionError } from './prisma'
 import { applySiteBranding, getSitePresetBySlug, normalizeSiteHost, resolveSitePresetByHost, type SiteBrandPreset } from './site-presets'
 
@@ -58,8 +59,8 @@ function getEmergencySite(host: string | null | undefined): EmergencySite {
   )
 }
 
-function withBranding<T extends { slug: string }>(site: T | null, options?: { host?: string | null; preset?: SiteBrandPreset | null }) {
-  return site ? applySiteBranding(site, options) : null
+function withBranding<T extends { slug: string }>(site: T | null, options?: { host?: string | null; preset?: SiteBrandPreset | null }): T | null {
+  return site ? (applySiteBranding(site as any, options) as T) : null
 }
 
 async function safeSiteQuery<T>(query: () => Promise<T>, fallback: T): Promise<T> {
@@ -73,14 +74,14 @@ async function safeSiteQuery<T>(query: () => Promise<T>, fallback: T): Promise<T
 
 export async function getSiteBySlug(slug: string) {
   const canonicalSlug = getSitePresetBySlug(slug)?.slug || slug
-  const site = await safeSiteQuery(() => prisma.site.findUnique({ where: { slug: canonicalSlug } }), null)
+  const site = await safeSiteQuery<Site | null>(() => prisma.site.findUnique({ where: { slug: canonicalSlug } }), null)
   return withBranding(site, { preset: getSitePresetBySlug(canonicalSlug) })
 }
 
 export async function resolveSiteByHost(host: string | null | undefined) {
   const candidates = hostCandidates(host)
   if (candidates.length) {
-    const directMatch = await safeSiteQuery(() => prisma.site.findFirst({ where: { domain: { in: candidates } } }), null)
+    const directMatch = await safeSiteQuery<Site | null>(() => prisma.site.findFirst({ where: { domain: { in: candidates } } }), null)
     if (directMatch) return withBranding(directMatch, { host, preset: getSitePresetBySlug(directMatch.slug) || resolveSitePresetByHost(host) })
   }
 
@@ -89,22 +90,22 @@ export async function resolveSiteByHost(host: string | null | undefined) {
   return withBranding(await getSiteBySlug(preset.slug), { host, preset })
 }
 
-export const getActiveSite = cache(async () => {
+export const getActiveSite = cache(async (): Promise<EmergencySite> => {
   const headerStore = await headers()
   const host = headerStore.get('x-forwarded-host') || headerStore.get('host')
   const hostMatch = await resolveSiteByHost(host)
-  if (hostMatch) return hostMatch
+  if (hostMatch) return hostMatch as EmergencySite
   const fallback = await getSiteBySlug(defaultSiteSlug())
-  if (fallback) return fallback
+  if (fallback) return fallback as EmergencySite
   return getEmergencySite(host)
 })
 
-export async function getActiveSiteForRequest(req: NextRequest) {
+export async function getActiveSiteForRequest(req: NextRequest): Promise<EmergencySite> {
   const host = req.headers.get('x-forwarded-host') || req.headers.get('host')
   const hostMatch = await resolveSiteByHost(host)
-  if (hostMatch) return hostMatch
+  if (hostMatch) return hostMatch as EmergencySite
   const fallback = await getSiteBySlug(defaultSiteSlug())
-  if (fallback) return fallback
+  if (fallback) return fallback as EmergencySite
   return getEmergencySite(host)
 }
 
