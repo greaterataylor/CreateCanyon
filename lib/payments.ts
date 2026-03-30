@@ -51,7 +51,7 @@ function taxShares(order: any) {
 
 function grossLineTotals(order: any) {
   const grossShares = taxShares(order)
-  return lineTotals(order).map((amount, index) => amount + Number(grossShares[index] || 0))
+  return lineTotals(order).map((amount: number, index: number) => amount + Number(grossShares[index] || 0))
 }
 
 function grossAmountForAsset(order: any, assetId?: string | null) {

@@ -46,7 +46,7 @@ export function getTaxShares(order: any) {
 export function getGrossLineTotals(order: any) {
   const lineTotals = getLineTotals(order)
   const taxShares = getTaxShares(order)
-  return lineTotals.map((amount, index) => amount + Number(taxShares[index] || 0))
+  return lineTotals.map((amount: number, index: number) => amount + Number(taxShares[index] || 0))
 }
 
 export function getGrossAmountForAsset(order: any, assetId: string) {
@@ -61,13 +61,13 @@ export function getGrossAmountForAsset(order: any, assetId: string) {
 function getEligibleLineTotals(order: any, assetId?: string | null) {
   const items = Array.isArray(order?.items) ? order.items : []
   const totals = getLineTotals(order)
-  return totals.map((amount, index) => itemMatchesAsset(items[index], assetId) ? amount : 0)
+  return totals.map((amount: number, index: number) => itemMatchesAsset(items[index], assetId) ? amount : 0)
 }
 
 function getEligibleGrossLineTotals(order: any, assetId?: string | null) {
   const items = Array.isArray(order?.items) ? order.items : []
   const grossTotals = getGrossLineTotals(order)
-  return grossTotals.map((amount, index) => itemMatchesAsset(items[index], assetId) ? amount : 0)
+  return grossTotals.map((amount: number, index: number) => itemMatchesAsset(items[index], assetId) ? amount : 0)
 }
 
 export async function ensureChargeId(stripe: any, paymentIntentId: string | null | undefined) {
