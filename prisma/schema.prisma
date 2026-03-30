@@ -1,0 +1,650 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  SITE_ADMIN
+  SUPER_ADMIN
+}
+
+enum VendorStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum AssetStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+enum PreviewType {
+  IMAGE
+  AUDIO
+  VIDEO
+  CODE
+  FILE
+  PDF
+  FONT
+}
+
+enum AssetKind {
+  IMAGE
+  GRAPHIC
+  AUDIO
+  VIDEO
+  FONT
+  CODE
+  DOCUMENT
+  TEMPLATE
+  BUNDLE
+  OTHER
+}
+
+enum SupportCaseType {
+  REFUND
+  DISPUTE
+  TAKEDOWN
+}
+
+enum SupportCaseStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+  REJECTED
+  COUNTER_NOTICE_RECEIVED
+  RELEASED
+}
+
+enum ProcessingJobStatus {
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum VendorLedgerEntryType {
+  SALE
+  PLATFORM_FEE
+  TAX
+  VENDOR_PAYOUT
+  REFUND
+  DISPUTE_RESERVE
+  DISPUTE_RELEASE
+  ADJUSTMENT
+}
+
+model User {
+  id                   String                @id @default(cuid())
+  email                String                @unique
+  name                 String?
+  passwordHash         String
+  role                 Role                  @default(USER)
+  createdAt            DateTime              @default(now())
+  vendor               Vendor?
+  orders               Order[]
+  purchases            Purchase[]
+  downloadEvents       DownloadEvent[]
+  siteAdminMemberships SiteAdminMembership[]
+  auditLogs            AuditLog[]            @relation("AuditActor")
+  collections          Collection[]
+  supportCases         SupportCase[]         @relation("SupportReporter")
+  reviewedSupportCases SupportCase[]         @relation("SupportReviewer")
+}
+
+model Site {
+  id                   String                  @id @default(cuid())
+  slug                 String                  @unique
+  name                 String
+  domain               String?                 @unique
+  logoUrl              String?
+  seoTitle             String?
+  seoDescription       String?
+  theme                Json?
+  settings             Json?
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+  categories           Category[]
+  categoryGroups       CategoryGroup[]
+  assets               Asset[]
+  vendorMemberships    VendorSiteMembership[]
+  siteAdmins           SiteAdminMembership[]
+  navigationItems      SiteNavigationItem[]
+  orders               Order[]
+  purchases            Purchase[]
+  downloadEvents       DownloadEvent[]
+  categoryVisibilities SiteCategoryVisibility[]
+  auditLogs            AuditLog[]
+  tags                 AssetTag[]
+  supportCases         SupportCase[]
+  processingJobs       ProcessingJob[]
+  ledgerEntries        VendorLedgerEntry[]
+  collections          Collection[]
+}
+
+model SiteNavigationItem {
+  id         String   @id @default(cuid())
+  siteId     String
+  label      String
+  href       String
+  sortOrder  Int      @default(0)
+  isVisible  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  site       Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([siteId, sortOrder])
+}
+
+model SiteAdminMembership {
+  id        String   @id @default(cuid())
+  userId    String
+  siteId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, siteId])
+  @@index([siteId])
+}
+
+model CategoryGroup {
+  id         String     @id @default(cuid())
+  siteId     String
+  name       String
+  slug       String
+  sortOrder  Int        @default(0)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  site       Site       @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  categories Category[]
+
+  @@unique([siteId, slug])
+  @@index([siteId, sortOrder])
+}
+
+model Category {
+  id                  String                  @id @default(cuid())
+  siteId              String
+  parentId            String?
+  groupId             String?
+  name                String
+  slug                String
+  description         String?
+  icon                String?
+  bannerUrl           String?
+  sortOrder           Int                     @default(0)
+  isActive            Boolean                 @default(true)
+  metadataSchema      Json?
+  allowedPreviewTypes Json?
+  allowedFileTypes    Json?
+  allowedLicenseTypes Json?
+  defaultLicenseKey   String?
+  taxCode             String?
+  taxBehavior         String?
+  featured            Boolean                 @default(false)
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+  site                Site                    @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  parent              Category?               @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children            Category[]              @relation("CategoryTree")
+  group               CategoryGroup?          @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  assets              Asset[]
+  fieldTemplates      CategoryFieldTemplate[]
+  rules               CategoryRule[]
+  visibilities        SiteCategoryVisibility[]
+
+  @@unique([siteId, slug])
+  @@index([siteId, parentId, sortOrder])
+}
+
+model CategoryFieldTemplate {
+  id         String   @id @default(cuid())
+  categoryId String
+  name       String
+  label      String
+  fieldType  String
+  required   Boolean  @default(false)
+  sortOrder  Int      @default(0)
+  options    Json?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([categoryId, sortOrder])
+}
+
+model CategoryRule {
+  id         String   @id @default(cuid())
+  categoryId String
+  key        String
+  value      Json?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, key])
+}
+
+model SiteCategoryVisibility {
+  id         String   @id @default(cuid())
+  siteId     String
+  categoryId String
+  enabled    Boolean  @default(true)
+  featured   Boolean  @default(false)
+  sortOrder  Int      @default(0)
+  site       Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([siteId, categoryId])
+  @@index([siteId, enabled, sortOrder])
+}
+
+model Vendor {
+  id          String                 @id @default(cuid())
+  userId      String                 @unique
+  displayName String
+  slug        String                 @unique
+  bio         String?
+  avatarUrl   String?
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+  user        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  memberships VendorSiteMembership[]
+  assets      Asset[]
+  supportCases SupportCase[]
+  ledgerEntries VendorLedgerEntry[]
+}
+
+model VendorSiteMembership {
+  id              String       @id @default(cuid())
+  vendorId        String
+  siteId          String
+  status          VendorStatus @default(PENDING)
+  storefrontName  String?
+  storefrontSlug  String
+  headline        String?
+  payoutEmail     String?
+  stripeAccountId       String?
+  stripeAccountStatus   String?
+  stripeChargesEnabled  Boolean      @default(false)
+  stripePayoutsEnabled  Boolean      @default(false)
+  stripeDetailsSubmitted Boolean     @default(false)
+  legalName             String?
+  taxCountry            String?
+  moderationNotes String?
+  approvedAt      DateTime?
+  rejectedAt      DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  vendor          Vendor       @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  site            Site         @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  assets          Asset[]
+  ledgerEntries   VendorLedgerEntry[]
+
+  @@unique([vendorId, siteId])
+  @@unique([siteId, storefrontSlug])
+  @@index([siteId, status])
+}
+
+model Asset {
+  id                     String                @id @default(cuid())
+  siteId                 String
+  vendorId               String
+  vendorSiteMembershipId String?
+  categoryId             String
+  title                  String
+  slug                   String
+  description            String
+  shortDescription       String?
+  kind                   AssetKind             @default(OTHER)
+  priceCents             Int
+  currency               String                @default("USD")
+  previewType            PreviewType           @default(FILE)
+  previewUrl             String?
+  primaryDownloadKey     String?
+  metadata               Json?
+  taxCode                String?
+  taxBehavior            String?
+  downloadsDisabled      Boolean               @default(false)
+  complianceNotes        String?
+  status                 AssetStatus           @default(PENDING)
+  rejectionReason        String?
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  site                   Site                  @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  vendor                 Vendor                @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  vendorSiteMembership   VendorSiteMembership? @relation(fields: [vendorSiteMembershipId], references: [id], onDelete: SetNull)
+  category               Category              @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  versions               AssetVersion[]
+  files                  AssetFile[]
+  previews               AssetPreview[]
+  tagLinks               AssetTagOnAsset[]
+  licenseOptions         LicenseOption[]
+  orderItems             OrderItem[]
+  purchases              Purchase[]
+  downloadEvents         DownloadEvent[]
+  supportCases           SupportCase[]
+  processingJobs         ProcessingJob[]
+  collectionItems        CollectionItem[]
+  ledgerEntries          VendorLedgerEntry[]
+  metadataEntries        AssetMetadataEntry[]
+
+  @@unique([siteId, slug])
+  @@index([siteId, status, categoryId])
+  @@index([vendorId, siteId])
+}
+
+model AssetVersion {
+  id           String      @id @default(cuid())
+  assetId      String
+  versionLabel String
+  changelog    String?
+  isCurrent    Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  asset        Asset       @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  files        AssetFile[]
+  processingJobs ProcessingJob[]
+
+  @@index([assetId, isCurrent])
+}
+
+model AssetFile {
+  id               String        @id @default(cuid())
+  assetId          String
+  versionId        String?
+  kind             String
+  storageBucket    String
+  storageKey       String
+  originalFilename String
+  mimeType         String
+  sizeBytes        Int
+  isPublic         Boolean       @default(false)
+  checksum         String?
+  createdAt        DateTime      @default(now())
+  asset            Asset         @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  version          AssetVersion? @relation(fields: [versionId], references: [id], onDelete: SetNull)
+
+  @@index([assetId, kind])
+}
+
+model AssetPreview {
+  id         String      @id @default(cuid())
+  assetId    String
+  type       PreviewType
+  url        String
+  storageKey String?
+  mimeType   String?
+  sortOrder  Int         @default(0)
+  metadata   Json?
+  createdAt  DateTime    @default(now())
+  asset      Asset       @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@index([assetId, sortOrder])
+}
+
+model AssetTag {
+  id         String           @id @default(cuid())
+  siteId     String
+  name       String
+  slug       String
+  createdAt  DateTime         @default(now())
+  site       Site             @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  assetLinks AssetTagOnAsset[]
+
+  @@unique([siteId, slug])
+}
+
+model AssetTagOnAsset {
+  assetId String
+  tagId   String
+  asset   Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  tag     AssetTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([assetId, tagId])
+}
+
+model AssetMetadataEntry {
+  id        String   @id @default(cuid())
+  assetId    String
+  fieldKey   String
+  fieldLabel String?
+  fieldType  String?
+  valueText  String?
+  valueJson  Json?
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  asset      Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@unique([assetId, fieldKey])
+  @@index([assetId, sortOrder])
+}
+
+model LicenseOption {
+  id          String     @id @default(cuid())
+  assetId     String
+  name        String
+  slug        String
+  description String?
+  licenseText String?
+  priceCents  Int?
+  sortOrder   Int        @default(0)
+  createdAt   DateTime   @default(now())
+  asset       Asset      @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  orderItems  OrderItem[]
+  purchases   Purchase[]
+
+  @@unique([assetId, slug])
+  @@index([assetId, sortOrder])
+}
+
+model Order {
+  id                String    @id @default(cuid())
+  userId            String
+  siteId            String
+  totalCents        Int
+  currency          String    @default("USD")
+  status            String    @default("created")
+  stripeSessionId   String?   @unique
+  stripePaymentIntentId String?
+  stripeChargeId    String?
+  stripeTransferGroup String?
+  stripeCheckoutStatus String?
+  platformFeeCents  Int       @default(0)
+  vendorPayoutCents Int       @default(0)
+  taxCents          Int       @default(0)
+  createdAt         DateTime  @default(now())
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  site              Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  items             OrderItem[]
+  purchases         Purchase[]
+  supportCases      SupportCase[]
+  ledgerEntries     VendorLedgerEntry[]
+
+  @@index([userId])
+  @@index([siteId, createdAt])
+}
+
+model OrderItem {
+  id              String         @id @default(cuid())
+  orderId         String
+  assetId         String
+  licenseOptionId String?
+  priceCents      Int
+  quantity        Int            @default(1)
+  order           Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  asset           Asset          @relation(fields: [assetId], references: [id], onDelete: Restrict)
+  licenseOption   LicenseOption? @relation(fields: [licenseOptionId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
+  @@index([assetId])
+}
+
+model Purchase {
+  id               String         @id @default(cuid())
+  userId           String
+  assetId          String
+  orderId          String
+  siteId           String
+  licenseOptionId  String?
+  createdAt        DateTime       @default(now())
+  licenseKey       String
+  downloadCount    Int            @default(0)
+  lastDownloadedAt DateTime?
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  asset            Asset          @relation(fields: [assetId], references: [id], onDelete: Restrict)
+  order            Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  site             Site           @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  licenseOption    LicenseOption? @relation(fields: [licenseOptionId], references: [id], onDelete: SetNull)
+  downloadEvents   DownloadEvent[]
+
+  @@unique([userId, assetId, licenseOptionId])
+  @@index([orderId])
+  @@index([siteId, createdAt])
+}
+
+model DownloadEvent {
+  id         String   @id @default(cuid())
+  purchaseId String
+  userId     String
+  assetId    String
+  siteId     String
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  purchase   Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  asset      Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  site       Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([purchaseId, createdAt])
+  @@index([siteId, createdAt])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  actorUserId String?
+  siteId      String?
+  entityType  String
+  entityId    String
+  action      String
+  details     Json?
+  createdAt   DateTime @default(now())
+  actor       User?    @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  site        Site?    @relation(fields: [siteId], references: [id], onDelete: SetNull)
+
+  @@index([siteId, createdAt])
+  @@index([entityType, entityId])
+}
+
+model Collection {
+  id          String           @id @default(cuid())
+  userId      String
+  siteId      String
+  name        String
+  slug        String
+  isDefault   Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  site        Site             @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  items       CollectionItem[]
+
+  @@unique([userId, siteId, slug])
+  @@index([userId, siteId])
+}
+
+model CollectionItem {
+  collectionId String
+  assetId      String
+  createdAt    DateTime   @default(now())
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  asset        Asset      @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@id([collectionId, assetId])
+  @@index([assetId])
+}
+
+model SupportCase {
+  id                String            @id @default(cuid())
+  siteId            String
+  reporterUserId    String
+  assetId           String
+  orderId           String?
+  vendorId          String?
+  type              SupportCaseType
+  status            SupportCaseStatus @default(OPEN)
+  message           String
+  actionMode        String?
+  resolutionNotes   String?
+  counterNoticeText String?
+  counterNoticeAt   DateTime?
+  reviewedByUserId  String?
+  reviewedAt        DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  site              Site              @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  reporter          User              @relation("SupportReporter", fields: [reporterUserId], references: [id], onDelete: Cascade)
+  reviewer          User?             @relation("SupportReviewer", fields: [reviewedByUserId], references: [id], onDelete: SetNull)
+  asset             Asset             @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  order             Order?            @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  vendor            Vendor?           @relation(fields: [vendorId], references: [id], onDelete: SetNull)
+
+  @@index([siteId, type, status, createdAt])
+  @@index([assetId, createdAt])
+}
+
+model ProcessingJob {
+  id          String              @id @default(cuid())
+  siteId      String
+  assetId     String
+  versionId   String?
+  jobType     String
+  status      ProcessingJobStatus @default(QUEUED)
+  payload     Json?
+  attempts    Int                 @default(0)
+  lastError   String?
+  startedAt   DateTime?
+  finishedAt  DateTime?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  site        Site                @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  asset       Asset               @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  version     AssetVersion?       @relation(fields: [versionId], references: [id], onDelete: SetNull)
+
+  @@index([siteId, status, createdAt])
+  @@index([assetId, createdAt])
+}
+
+model VendorLedgerEntry {
+  id                     String                @id @default(cuid())
+  vendorId               String
+  siteId                 String
+  vendorSiteMembershipId String?
+  orderId                String?
+  assetId                String?
+  type                   VendorLedgerEntryType
+  amountCents            Int
+  currency               String                @default("USD")
+  notes                  String?
+  metadata               Json?
+  createdAt              DateTime              @default(now())
+  vendor                 Vendor                @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  site                   Site                  @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  vendorSiteMembership   VendorSiteMembership? @relation(fields: [vendorSiteMembershipId], references: [id], onDelete: SetNull)
+  order                  Order?                @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  asset                  Asset?                @relation(fields: [assetId], references: [id], onDelete: SetNull)
+
+  @@index([vendorId, siteId, createdAt])
+  @@index([siteId, type, createdAt])
+}
