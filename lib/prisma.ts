@@ -5,6 +5,19 @@ declare global {
   var prisma: any | undefined
 }
 
+export function isPrismaConnectionError(error: unknown) {
+  const message = String((error as any)?.message || '')
+  const name = String((error as any)?.name || '')
+  return (
+    name === 'PrismaClientInitializationError' ||
+    name === 'PrismaClientKnownRequestError' ||
+    message.includes('Server has closed the connection') ||
+    message.includes("Can't reach database server") ||
+    message.includes('Connection terminated unexpectedly') ||
+    message.includes('Connection reset by peer')
+  )
+}
+
 function createFallbackClient() {
   const fail = () => {
     throw new Error('Prisma client is not generated. Run `npx prisma generate` in your deployment environment before starting the app.')
@@ -25,10 +38,7 @@ function createPrismaClient() {
           return await next(params)
         } catch (error: any) {
           const message = String(error?.message || '')
-          const isRetryableConnectionError =
-            error?.name === 'PrismaClientInitializationError' ||
-            message.includes('Server has closed the connection') ||
-            message.includes("Can't reach database server")
+          const isRetryableConnectionError = isPrismaConnectionError(error)
 
           if (!isRetryableConnectionError || params?.__retryAfterReconnect) throw error
 

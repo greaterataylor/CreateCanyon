@@ -1,5 +1,5 @@
 import AssetCard from '@/components/AssetCard'
-import { prisma } from '@/lib/prisma'
+import { prisma, isPrismaConnectionError } from '@/lib/prisma'
 import { getActiveSite, storefrontPath } from '@/lib/site'
 import { getHomeContent, getLegalDocuments } from '@/lib/settings'
 
@@ -10,16 +10,30 @@ export default async function Home() {
   const home = getHomeContent(site.settings, site.name)
   const legalDocs = getLegalDocuments(site.settings)
 
-  const [categories, assets, topVendors, totalAssetsCount] = await Promise.all([
-    prisma.category.findMany({
-      where: { siteId: site.id, isActive: true, OR: [{ visibilities: { none: {} } }, { visibilities: { some: { siteId: site.id, enabled: true } } }] },
-      orderBy: [{ featured: 'desc' }, { sortOrder: 'asc' }, { name: 'asc' }],
-      take: 16,
-    }),
-    prisma.asset.findMany({ where: { siteId: site.id, status: 'APPROVED', downloadsDisabled: false }, include: { vendor: true, category: true, vendorSiteMembership: true }, orderBy: { createdAt: 'desc' }, take: 24 }),
-    prisma.vendorSiteMembership.findMany({ where: { siteId: site.id, status: 'APPROVED' }, include: { vendor: true }, orderBy: { updatedAt: 'desc' }, take: 6 }),
-    prisma.asset.count({ where: { siteId: site.id, status: 'APPROVED', downloadsDisabled: false } }),
-  ])
+  let categories: any[] = []
+  let assets: any[] = []
+  let topVendors: any[] = []
+  let totalAssetsCount = 0
+
+  try {
+    ;[categories, assets, topVendors, totalAssetsCount] = await Promise.all([
+      prisma.category.findMany({
+        where: { siteId: site.id, isActive: true, OR: [{ visibilities: { none: {} } }, { visibilities: { some: { siteId: site.id, enabled: true } } }] },
+        orderBy: [{ featured: 'desc' }, { sortOrder: 'asc' }, { name: 'asc' }],
+        take: 16,
+      }),
+      prisma.asset.findMany({
+        where: { siteId: site.id, status: 'APPROVED', downloadsDisabled: false },
+        include: { vendor: true, category: true, vendorSiteMembership: true },
+        orderBy: { createdAt: 'desc' },
+        take: 24,
+      }),
+      prisma.vendorSiteMembership.findMany({ where: { siteId: site.id, status: 'APPROVED' }, include: { vendor: true }, orderBy: { updatedAt: 'desc' }, take: 6 }),
+      prisma.asset.count({ where: { siteId: site.id, status: 'APPROVED', downloadsDisabled: false } }),
+    ])
+  } catch (error) {
+    if (!isPrismaConnectionError(error)) throw error
+  }
 
   return (
     <div className="space-y-8">
