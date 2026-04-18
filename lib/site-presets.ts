@@ -204,7 +204,7 @@ export const SITE_BRAND_PRESETS: SiteBrandPreset[] = [
       'melodymercant.localhost',
     ],
     hostHints: ['melodymerchant', 'melodymercant'],
-    seoTitle: 'MelodyMerchant - Your Source of Sound',
+    seoTitle: 'MelodyMerchant - Source of Sound',
     seoDescription: 'Marketplace for loops, samples, beats, stems, and sound design tools.',
     theme: melodyMerchantTheme,
     settings: buildSettings({
