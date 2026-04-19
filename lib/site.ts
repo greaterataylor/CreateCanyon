@@ -1,7 +1,7 @@
 import { headers } from 'next/headers'
 import type { NextRequest } from 'next/server'
 import { cache } from 'react'
-import type { Site } from '@prisma/client'
+import type { Prisma, Site } from '@prisma/client'
 import { prisma, isPrismaConnectionError } from './prisma'
 import { applySiteBranding, getSitePresetBySlug, normalizeSiteHost, resolveSitePresetByHost, type SiteBrandPreset } from './site-presets'
 
@@ -40,6 +40,28 @@ type EmergencySite = {
   settings: Record<string, unknown>
 }
 
+type BrandedSite = Site & { faviconUrl?: string | null }
+
+function toRecord(value: Prisma.JsonValue | Prisma.InputJsonValue | null | undefined): Record<string, unknown> {
+  if (!value || Array.isArray(value) || typeof value !== 'object') return {}
+  return value as Record<string, unknown>
+}
+
+function toEmergencySite(site: BrandedSite): EmergencySite {
+  return {
+    id: site.id,
+    slug: site.slug,
+    name: site.name,
+    domain: site.domain,
+    logoUrl: site.logoUrl,
+    faviconUrl: site.faviconUrl ?? null,
+    seoTitle: site.seoTitle,
+    seoDescription: site.seoDescription,
+    theme: toRecord(site.theme),
+    settings: toRecord(site.settings),
+  }
+}
+
 function getEmergencySite(host: string | null | undefined): EmergencySite {
   const preset = resolveSitePresetByHost(host) || getSitePresetBySlug(defaultSiteSlug())
   const normalizedHost = normalizeHost(host)
@@ -61,8 +83,8 @@ function getEmergencySite(host: string | null | undefined): EmergencySite {
   )
 }
 
-function withBranding<T extends { slug: string }>(site: T | null, options?: { host?: string | null; preset?: SiteBrandPreset | null }): T | null {
-  return site ? (applySiteBranding(site as any, options) as T) : null
+function withBranding<T extends { slug: string }>(site: T | null, options?: { host?: string | null; preset?: SiteBrandPreset | null }): (T & { faviconUrl?: string | null }) | null {
+  return site ? (applySiteBranding(site as any, options) as T & { faviconUrl?: string | null }) : null
 }
 
 async function safeSiteQuery<T>(query: () => Promise<T>, fallback: T): Promise<T> {
@@ -96,18 +118,18 @@ export const getActiveSite = cache(async (): Promise<EmergencySite> => {
   const headerStore = await headers()
   const host = headerStore.get('x-forwarded-host') || headerStore.get('host')
   const hostMatch = await resolveSiteByHost(host)
-  if (hostMatch) return hostMatch as EmergencySite
+  if (hostMatch) return toEmergencySite(hostMatch)
   const fallback = await getSiteBySlug(defaultSiteSlug())
-  if (fallback) return fallback as EmergencySite
+  if (fallback) return toEmergencySite(fallback)
   return getEmergencySite(host)
 })
 
 export async function getActiveSiteForRequest(req: NextRequest): Promise<EmergencySite> {
   const host = req.headers.get('x-forwarded-host') || req.headers.get('host')
   const hostMatch = await resolveSiteByHost(host)
-  if (hostMatch) return hostMatch as EmergencySite
+  if (hostMatch) return toEmergencySite(hostMatch)
   const fallback = await getSiteBySlug(defaultSiteSlug())
-  if (fallback) return fallback as EmergencySite
+  if (fallback) return toEmergencySite(fallback)
   return getEmergencySite(host)
 }
 
