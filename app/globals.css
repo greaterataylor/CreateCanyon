@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-50: #f5f5ff;
+  --color-brand-100: #e5e7ff;
+  --color-brand-200: #c7ccff;
+  --color-brand-300: #a4adff;
+  --color-brand-400: #7e8bff;
+  --color-brand-500: #5c6cff;
+  --color-brand-600: #424fe6;
+  --color-brand-700: #333cc0;
+  --color-brand-800: #2a3199;
+  --color-brand-900: #1d2266;
+}
+
+html, body, :root { height: 100%; }
+body { background-color: var(--site-background-color, #f9fafb); color: var(--site-text-color, #111827); }
+.container { @apply mx-auto max-w-7xl px-4; }
+.btn { @apply inline-flex items-center justify-center rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60; }
+.btn-secondary { @apply inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50; }
+.input, textarea, select { @apply w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none ring-0 focus:border-brand-500 focus:ring-2 focus:ring-brand-200; }
+.label { @apply mb-1 block text-sm font-medium text-gray-700; }
+.card { @apply overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm; }
+.card-body { @apply p-5; }
+.navlink { @apply rounded-md px-3 py-2 text-sm text-gray-600 transition hover:bg-brand-50 hover:text-brand-700; }
+.navlink-active { @apply bg-brand-50 font-semibold text-brand-700; }
+.asset-grid { @apply grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4; }
+.badge { @apply inline-flex items-center rounded-full bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700; }
+.table { @apply min-w-full overflow-hidden rounded-xl border border-gray-200 bg-white text-sm; }
+.table thead { @apply bg-gray-50 text-left; }
+.table th, .table td { @apply border-b border-gray-200 px-4 py-3 align-top; }
+.table tbody tr:last-child td { @apply border-b-0; }
+.section-title { @apply text-xl font-bold; }
+.kv-item { @apply rounded-lg border border-gray-200 bg-white p-4; }
+.empty-state { @apply rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center text-sm text-gray-500; }
