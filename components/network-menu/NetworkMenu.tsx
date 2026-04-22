@@ -136,15 +136,23 @@ function CreateCanyonMenuIcon({ className }: { className?: string }) {
 
 function DeployMenuIcon({ className }: { className?: string }) {
   return (
-    <MenuStrokeIcon className={className} viewBox="0 0 24 24">
-      <g transform="rotate(-55 12 12)">
-        <path d="M12 2.5c-1.8 1.8-2.8 4.8-2.8 8.1v5.6h5.6v-5.6c0-3.3-1-6.3-2.8-8.1Z" />
-        <path d="M9.2 13.2 6.8 15.1v2.7l2.4-1.6" strokeLinecap="butt" />
-        <path d="M14.8 13.2l2.4 1.9v2.7l-2.4-1.6" strokeLinecap="butt" />
-        <path d="M10.4 16.2h3.2v1.8h-3.2z" />
-        <path d="M12 18c1 1.2 1.4 2.2 0 3.5-1.4-1.3-1-2.3 0-3.5Z" />
-      </g>
-    </MenuStrokeIcon>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      role="img"
+      aria-label="Deploy icon"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={clsx('shrink-0 text-current', className)}
+    >
+      <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+      <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+      <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+      <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+    </svg>
   )
 }
 
@@ -193,7 +201,7 @@ function EcosystemMenuGlyph({ icon, className }: { icon?: EcosystemMenuIcon; cla
   if (icon === 'create-canyon') {
     return <CreateCanyonMenuIcon className={clsx(className, 'h-[20px] w-[20px]')} />
   }
-  if (icon === 'deploy') return <DeployMenuIcon className={clsx(className, 'h-[24px] w-[24px]')} />
+  if (icon === 'deploy') return <DeployMenuIcon className={clsx(className, 'h-[19px] w-[19px]')} />
   if (icon === 'compose') return <ComposeMenuIcon className={clsx(className, 'h-[20px] w-[20px]')} />
   if (icon === 'organize') return <OrganizeMenuIcon className={clsx(className, 'h-[20px] w-[20px]')} />
   if (icon === 'imagine') return <ImagineMenuIcon className={clsx(className, 'h-[24px] w-[24px]')} />
