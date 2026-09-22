@@ -17,22 +17,22 @@ export class NotificationWorker {
    if(type==='ORDER_PAID'){await this.notify(p.userId!,`paid:${p.orderId}`,'Your purchase is ready','Your files and license certificates are available in your purchase library.','/library');return;}
    if(type==='REFUND_COMPLETED'){await this.notify(p.userId!,`refund:${p.refundId}`,'Refund processed','Your order has been updated. Bank processing times depend on your payment method.',`/orders/${p.orderId}`);return;}
    if(type==='SUPPORT_UPDATED'){
-     const [c]=await sql`SELECT * FROM support_case WHERE id=${p.caseId}`;if(!c)return;
+     const [c]=await sql`SELECT * FROM support_case WHERE id=${p.caseId!}`;if(!c)return;
      const members=c.seller_organisation_id?await sql`SELECT user_id FROM seller_membership WHERE seller_organisation_id=${c.seller_organisation_id} AND role IN('OWNER','MANAGER','SUPPORT')`:[];
      const recipients=new Set<string>([...(c.user_id?[c.user_id]:[]),...members.map(m=>m.user_id)]);
      for(const userId of recipients)if(userId!==p.actorId)await this.notify(userId,`${eventId}:${userId}`,'Support conversation updated','A support conversation has a new response.',`/support/${c.id}`);return;
    }
    if(type==='MODERATION_DECIDED'){
-     const members=await sql`SELECT user_id FROM seller_membership WHERE seller_organisation_id=${p.sellerId} AND role IN('OWNER','MANAGER','UPLOADER')`;
+     const members=await sql`SELECT user_id FROM seller_membership WHERE seller_organisation_id=${p.sellerId!} AND role IN('OWNER','MANAGER','UPLOADER')`;
      for(const m of members)await this.notify(m.user_id,`${eventId}:${m.user_id}`,'Submission status updated',`${p.decision}: ${p.reason}`,`/sell/items/${p.itemId}`);
      if(p.decision==='APPROVE'){
-       const buyers=await sql`SELECT DISTINCT user_id FROM entitlement WHERE item_id=${p.itemId} AND status='ACTIVE' AND update_access_until>=now()`;
+       const buyers=await sql`SELECT DISTINCT user_id FROM entitlement WHERE item_id=${p.itemId!} AND status='ACTIVE' AND update_access_until>=now()`;
        for(const b of buyers)await this.notify(b.user_id,`${eventId}:buyer:${b.user_id}`,'Product update available','An item in your library has a new published version.','/library');
      }return;
    }
    if(type==='COPYRIGHT_UPDATED'){
-     const recipients=await sql`SELECT DISTINCT e.user_id FROM entitlement e WHERE e.item_id=${p.itemId} AND e.status='ACTIVE'
-       UNION SELECT m.user_id FROM seller_membership m JOIN catalog_item i ON i.seller_organisation_id=m.seller_organisation_id WHERE i.id=${p.itemId} AND m.role IN('OWNER','MANAGER')`;
+     const recipients=await sql`SELECT DISTINCT e.user_id FROM entitlement e WHERE e.item_id=${p.itemId!} AND e.status='ACTIVE'
+       UNION SELECT m.user_id FROM seller_membership m JOIN catalog_item i ON i.seller_organisation_id=m.seller_organisation_id WHERE i.id=${p.itemId!} AND m.role IN('OWNER','MANAGER')`;
      for(const r of recipients)await this.notify(r.user_id,`${eventId}:${r.user_id}`,'Item rights status updated',`An item linked to your account has a rights-review update: ${p.status}. Contact support for help.`, '/support');return;
    }
    throw new Error('Unsupported notification event');

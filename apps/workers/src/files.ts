@@ -54,7 +54,7 @@ export class FileProcessor {
        const originalKey=`originals/${v.item_id}/${versionId}/${f.id}/${randomUUID()}`;
        // Copy precisely the bytes that were scanned, never a subsequently overwritten quarantine key.
        const saved=await new Upload({client:this.storage,params:{Bucket:this.env.S3_ORIGINALS_BUCKET,Key:originalKey,Body:createReadStream(source),ContentType:report.detectedMime,ContentLength:bytes,Metadata:{sha256:f.sha256},...(this.env.S3_ENDPOINT?{}:{ServerSideEncryption:'aws:kms'})},queueSize:2,partSize:16*1024*1024,leavePartsOnError:false}).done();
-       const previews=[];
+       const previews:(ProcessorReport["previews"][number]&{id:string;key:string})[]=[];
        for(const preview of report.previews){
          if(!/^[a-zA-Z0-9_-]+\.(webp|png|mp3)$/.test(preview.filename)||!['image/webp','image/png','audio/mpeg'].includes(preview.mime))throw new RejectedFile('Invalid generated preview');
          const filename=path.join(output,preview.filename),info=await stat(filename);if(!info.isFile()||info.size>20*1024*1024||info.size!==preview.bytes||await hash(filename)!==preview.sha256)throw new RejectedFile('Generated preview checksum or size mismatch');
