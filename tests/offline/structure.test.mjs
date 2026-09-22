@@ -16,7 +16,9 @@ test('Five applications and explicit migration files are present',async()=>{
  const guards=await readFile(path.join(root,'packages/database/migrations/0002_invariants.sql'),'utf8');for(const term of ['DEFERRABLE INITIALLY DEFERRED','immutable_order_line','immutable_version','cc_verify_audit','validate_listing','pg_current_xact_id'])assert.ok(guards.includes(term));
 });
 test('Next project deployment never points to API dist as a static site',async()=>{
+ const rootPackage=JSON.parse(await readFile(path.join(root,'package.json'),'utf8'));
  const rootConfig=JSON.parse(await readFile(path.join(root,'vercel.json'),'utf8'));
+ assert.equal(rootPackage.devDependencies.next,'16.3.5');
  assert.match(rootConfig.installCommand,/corepack pnpm install/);
  assert.notEqual(rootConfig.outputDirectory,'apps/api/dist');
  for(const app of ['storefront','dashboard','admin']){const config=JSON.parse(await readFile(path.join(root,'apps',app,'vercel.json'),'utf8'));assert.equal(config.framework,'nextjs');assert.notEqual(config.outputDirectory,'apps/api/dist');}
