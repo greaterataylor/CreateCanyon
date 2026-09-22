@@ -5,7 +5,7 @@
   "description": "Secure multi-brand digital asset marketplace network for CreateCanyon and its specialist channels.",
   "packageManager": "pnpm@11.15.1",
   "engines": {
-    "node": ">=22.16.0 <25"
+    "node": ">=22.16.0 <23"
   },
   "scripts": {
     "dev": "node scripts/with-env.mjs turbo dev --parallel",
