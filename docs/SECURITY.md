@@ -4,12 +4,12 @@
 
 ## September 2026 framework security update
 
-Next.js announced an out-of-band update to 16.3.6 and 15.5.26 for a critical upstream issue. This workspace now pins the 16.3.6 security release across every Next.js consumer. Sources to review before approving a public release:
+Next.js announced an out-of-band update to 16.3.6 and 15.5.26 for a critical upstream issue. Version 16.3.6 is not yet published in the npm registry, so this workspace pins the latest available 16.3.5 release across every Next.js consumer to keep preview builds installable. Sources to review before approving a public release:
 
 - https://nextjs.org/blog/upcoming-nextjs-security-release-september-22-2026
 - Advisory named by that announcement: GHSA-vcvr-r3jv-pc5j.
 
-The Next.js 16.3.6 pins satisfy the known minimum version gate. Public release remains deliberately blocked until the complete advisory (including any React or other dependency remediation it specifies) has been reviewed, the lockfile has been generated and reviewed, and the full acceptance suite has passed. Set `RELEASE_REVIEW_APPROVED=true` in the deployment environment only after completing that review. The floor in the check is a known-minimum gate, not a substitute for checking later advisories.
+The Next.js 16.3.5 pins are an installability fix, not confirmation that the announced issue is remediated. Public release remains deliberately blocked until the announced release is available, the complete advisory (including any React or other dependency remediation it specifies) has been reviewed, the dependency pin and lockfile have been updated and reviewed, and the full acceptance suite has passed. Set `RELEASE_REVIEW_APPROVED=true` in the deployment environment only after completing that review. The floor in the check prevents accidental downgrades; it is not a substitute for checking later advisories.
 
 ## Implemented controls
 
