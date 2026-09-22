@@ -20,6 +20,8 @@ test('Next project deployment never points to API dist as a static site',async()
  const rootConfig=JSON.parse(await readFile(path.join(root,'vercel.json'),'utf8'));
  assert.equal(rootPackage.devDependencies.next,'16.3.5');
  assert.match(rootConfig.installCommand,/corepack pnpm install/);
- assert.notEqual(rootConfig.outputDirectory,'apps/api/dist');
+ assert.equal(rootConfig.framework,'nextjs');
+ assert.equal(rootConfig.outputDirectory,'apps/storefront/.next');
+ assert.match(rootConfig.buildCommand,/--filter=@createcanyon\/storefront(?:\s|$)/);
  for(const app of ['storefront','dashboard','admin']){const config=JSON.parse(await readFile(path.join(root,'apps',app,'vercel.json'),'utf8'));assert.equal(config.framework,'nextjs');assert.notEqual(config.outputDirectory,'apps/api/dist');}
 });

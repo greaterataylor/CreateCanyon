@@ -20,7 +20,7 @@ The checked npm `next/latest` response was **16.3.5**. Next.js announced an upco
 
 Specialist storefronts: `http://graphicgrounds.localhost:3000`, `http://melodymerchant.localhost:3000`, `http://filefoyer.localhost:3000`, `http://programplaza.localhost:3000`. These names must resolve to loopback in your browser/OS; add explicit loopback hosts entries when required. Do not browse the account applications as `127.0.0.1`: the development OIDC callbacks and WebAuthn relying party use `localhost`.
 
-The root Vercel configuration only selects pnpm for workspace installation and does not serve API build output as a website. Each Next.js application also has its own project configuration. No DNS records or cloud deployments were changed by this delivery.
+The root Vercel configuration deploys the storefront by explicitly building the storefront workspace and selecting `apps/storefront/.next` as its output. Each Next.js application also has its own project configuration for projects whose root directory is set to that app. No DNS records or cloud deployments were changed by this delivery.
 
 ## First local setup
 
