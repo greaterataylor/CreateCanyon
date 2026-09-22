@@ -69,7 +69,7 @@ export class CommunityService {
   }
   async support(p:Principal){const u=await this.users.resolveUser(p);return this.connection.client`SELECT c.id,c.subject,c.status,c.order_id,c.seller_organisation_id,c.created_at,c.updated_at FROM support_case c WHERE c.user_id=${u.id}
     OR EXISTS(SELECT 1 FROM seller_membership m WHERE m.user_id=${u.id} AND m.seller_organisation_id=c.seller_organisation_id AND m.role IN('OWNER','MANAGER','SUPPORT')) ORDER BY c.updated_at DESC LIMIT 200`;}
-  async createSupport(p:Principal,input:{subject:string;body:string;orderLineId?:string}){
+  async createSupport(p:Principal,input:{subject:string;body:string;orderLineId?:string|undefined}){
     const u=await this.users.resolveUser(p);return this.connection.client.begin(async tx=>{
       let orderId:string|null=null,sellerId:string|null=null;
       if(input.orderLineId){const [line]=await tx`SELECT ol.order_id,ol.seller_organisation_id FROM order_line ol JOIN customer_order o ON o.id=ol.order_id WHERE ol.id=${input.orderLineId} AND o.user_id=${u.id}`;if(!line)throw new NotFoundException("Your order line was not found");orderId=line.order_id;sellerId=line.seller_organisation_id;}
@@ -98,7 +98,7 @@ export class CommunityService {
     }
     return this.connection.client`SELECT DISTINCT ON(p.item_id) p.item_id,p.title,p.seller_display_name,p.amount_minor::text,p.currency,p.canonical_url FROM wishlist_item w JOIN public_listing p ON p.item_id=w.item_id WHERE w.user_id=${u.id} ORDER BY p.item_id,p.is_primary DESC`;
   }
-  async copyright(input:{itemId:string;claimantName:string;claimantEmail:string;allegation:string;evidenceUrl?:string;goodFaith:true}){
+  async copyright(input:{itemId:string;claimantName:string;claimantEmail:string;allegation:string;evidenceUrl?:string|undefined;goodFaith:true}){
     return this.connection.client.begin(async tx=>{
       const [item]=await tx`SELECT id FROM catalog_item WHERE id=${input.itemId}`;if(!item)throw new NotFoundException("Item not found");
       const [claim]=await tx`INSERT INTO copyright_claim(item_id,claimant_name,claimant_email,allegation,evidence) VALUES(${input.itemId},${input.claimantName},${input.claimantEmail},${input.allegation},${JSON.stringify({url:input.evidenceUrl??null,goodFaith:true})}::jsonb) RETURNING id,created_at`;

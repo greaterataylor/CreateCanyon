@@ -12,3 +12,7 @@ export function parseWithSchema<T>(schema: ZodType<T>, value: unknown): T {
   }
   return result.data;
 }
+
+// Keep controller call sites concise while exposing the more descriptive name
+// for callers that prefer it.
+export const parseWith = parseWithSchema;

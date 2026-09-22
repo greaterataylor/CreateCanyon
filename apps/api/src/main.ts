@@ -21,8 +21,12 @@ export async function bootstrap() {
   app.setGlobalPrefix("v1");
   app.useGlobalFilters(new HttpExceptionFilter());
   app.enableCors({ origin: env.CORS_ALLOWED_ORIGINS, credentials: false, allowedHeaders: ["Content-Type", "Authorization", "Idempotency-Key"] });
-  await app.register(helmet, { contentSecurityPolicy: false });
-  await app.register(rateLimit, { global: true, max: 120, timeWindow: "1 minute" });
+  // pnpm may resolve the plugins' Fastify type declarations through a separate
+  // package instance. The runtime plugin API is compatible with Nest's adapter,
+  // so normalize the declarations at this integration boundary.
+  type NestFastifyPlugin = Parameters<NestFastifyApplication["register"]>[0];
+  await app.register(helmet as unknown as NestFastifyPlugin, { contentSecurityPolicy: false });
+  await app.register(rateLimit as unknown as NestFastifyPlugin, { global: true, max: 120, timeWindow: "1 minute" });
   adapter.getInstance().addHook("preSerialization", async (_req, reply, payload) => {
     reply.header("Cache-Control", "private, no-store");
     return JSON.parse(JSON.stringify(payload, (_key, value) => typeof value === "bigint" ? value.toString() : value));
