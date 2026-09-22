@@ -13,7 +13,7 @@
 | JSON/YAML parsing before packaging | 46 documents parsed | Syntax parsing only, not Docker, Keycloak, CI or Vercel semantic validation |
 | Release guard | Exited **1**, as intended | Rejects the current pre-update Next.js pins, absent lockfile and missing review approval |
 
-Executed with Node **22.16.0**, Python **3.13.5** and locally available TypeScript **5.8.3**. The repository selects Node 24 and declares TypeScript 5.9.3; those are not the toolchain versions used for this offline syntax run. No compiler flags were relaxed to manufacture a successful full build.
+Executed with Node **22.16.0**, Python **3.13.5** and locally available TypeScript **5.8.3**. The repository selects the Node 22 release line and declares TypeScript 5.9.3; the locally available TypeScript was not the declared toolchain version used for this offline syntax run. No compiler flags were relaxed to manufacture a successful full build.
 
 Actual output is retained in `docs/verification/node-tests.tap`, `archive-tests.txt`, and `release-check.txt`. The Node test runner transpiles selected source modules with a local TypeScript compiler; it does not substitute fake payment/OIDC libraries and does not count unexecuted provider workflows as passes.
 
