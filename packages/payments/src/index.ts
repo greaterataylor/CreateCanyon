@@ -6,7 +6,14 @@ import { calculateBasisPoints, DomainError, minorToSafeNumber, refundAllocation 
 
 export interface CheckoutRequest {
   cartId: string;
-  billingAddress?: { line1: string; line2?: string; city: string; state?: string; postal_code: string; country: string };
+  billingAddress?: {
+    line1: string;
+    line2?: string | undefined;
+    city: string;
+    state?: string | undefined;
+    postal_code: string;
+    country: string;
+  } | undefined;
   successUrl: string;
   cancelUrl: string;
 }
