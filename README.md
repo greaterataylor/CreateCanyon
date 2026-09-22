@@ -24,7 +24,7 @@ The incorrect root Vercel configuration that attempted to serve API build output
 
 ## First local setup
 
-Prerequisites: a supported Node version satisfying the root `engines` field (the repository selects Node 24), Corepack/pnpm, Docker with Compose, Python 3, and network access to install dependencies and images. On Windows, use WSL2 for the POSIX processor and permission model. Keep the application loopback-only while the dependency security notice is unresolved.
+Prerequisites: Node 22.16 or newer on the Node 22 release line (matching the root `engines` field), Corepack/pnpm, Docker with Compose, Python 3, and network access to install dependencies and images. On Windows, use WSL2 for the POSIX processor and permission model. Keep the application loopback-only while the dependency security notice is unresolved.
 
 ```sh
 cp .env.example .env

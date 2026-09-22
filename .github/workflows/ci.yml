@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22.16.0
       - run: corepack enable
       - name: Require an actual reviewed lockfile
         run: test -f pnpm-lock.yaml || { echo "Generate and review pnpm-lock.yaml using the README bootstrap instructions first."; exit 1; }

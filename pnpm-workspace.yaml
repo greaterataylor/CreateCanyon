@@ -2,6 +2,7 @@ packages:
   - apps/*
   - packages/*
   - processors
+strictPeerDependencies: false
 allowBuilds:
   esbuild: true
   sharp: true
