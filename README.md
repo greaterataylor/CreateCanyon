@@ -6,7 +6,7 @@ This ZIP is a substantial reconstruction of the supplied partial repository, not
 
 ## Critical dependency notice
 
-The Next.js consumers are pinned to the reviewed **16.3.6** security release. `pnpm release:check` and the Vercel build commands still require a lockfile and explicit release-review approval before a public deployment. The version floor alone is not a complete vulnerability assessment. See [SECURITY](docs/SECURITY.md).
+The Next.js consumers are pinned to the latest published **16.3.5** release. `pnpm release:check` and the Vercel build commands still require a lockfile and explicit release-review approval before a public deployment. The version floor alone is not a complete vulnerability assessment. See [SECURITY](docs/SECURITY.md).
 
 ## Applications
 

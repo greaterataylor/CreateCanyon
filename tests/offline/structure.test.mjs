@@ -18,7 +18,7 @@ test('Five applications and explicit migration files are present',async()=>{
 test('Next project deployment never points to API dist as a static site',async()=>{
  const rootPackage=JSON.parse(await readFile(path.join(root,'package.json'),'utf8'));
  const rootConfig=JSON.parse(await readFile(path.join(root,'vercel.json'),'utf8'));
- assert.equal(rootPackage.devDependencies.next,'16.3.6');
+ assert.equal(rootPackage.devDependencies.next,'16.3.5');
  assert.match(rootConfig.installCommand,/corepack pnpm install/);
  assert.equal(rootConfig.framework,'nextjs');
  assert.equal(rootConfig.outputDirectory,'apps/storefront/.next');

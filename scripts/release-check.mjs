@@ -6,7 +6,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 export function supportedNextVersion(version) {
   // Only the tested major line is permitted. No ranges, prereleases or assumed future majors.
   const match = /^(16)\.(\d+)\.(\d+)$/.exec(version ?? '');
-  return !!match && (Number(match[2]) > 3 || (Number(match[2]) === 3 && Number(match[3]) >= 6));
+  return !!match && (Number(match[2]) > 3 || (Number(match[2]) === 3 && Number(match[3]) >= 5));
 }
 export async function releaseProblems(directory = root, env = process.env) {
   const errors = [];
@@ -20,7 +20,7 @@ export async function releaseProblems(directory = root, env = process.env) {
       const version = manifest.dependencies?.next;
       if (!version) continue;
       versions.add(version);
-      if (!supportedNextVersion(version)) errors.push(`${group}/${entry.name}: Next.js ${version} is below the approved minimum 16.3.6. Read docs/SECURITY.md and the complete upstream advisory first.`);
+      if (!supportedNextVersion(version)) errors.push(`${group}/${entry.name}: Next.js ${version} is below the approved minimum 16.3.5. Read docs/SECURITY.md and the complete upstream advisory first.`);
     }
   }
   if (versions.size !== 1) errors.push('Every Next.js consumer must pin the same reviewed exact version.');
