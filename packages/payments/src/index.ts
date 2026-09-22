@@ -15,7 +15,7 @@ const clearing = (debit: bigint, credit=0n): Posting => ({ code: "STRIPE_CLEARIN
 const revenue = (debit: bigint, credit=0n): Posting => ({ code: "PLATFORM_REVENUE", name: "Platform commission", type: "REVENUE", debit, credit });
 const taxPayable = (debit: bigint, credit=0n): Posting => ({ code: "TAX_PAYABLE", name: "Tax payable", type: "LIABILITY", debit, credit });
 const payable = (sellerId: string, debit: bigint, credit=0n): Posting => ({ code: `SELLER_PAYABLE_${sellerId}`, name: "Seller payable", type: "LIABILITY", sellerId, debit, credit });
-const fail = (code: string, message: string): never => { throw new DomainError(code,message); };
+function fail(code: string, message: string): never { throw new DomainError(code,message); }
 
 /** Shared API/worker engine. Ambiguous provider mutations older than 23 hours require
  * manual reconciliation rather than risking expired provider-idempotency guarantees. */
@@ -382,6 +382,7 @@ export class PaymentEngine {
       if(account){
         const remote=await this.stripe.payouts.retrieve(p.id,{stripeAccount:event.account});
         const status=({paid:"PAID",failed:"FAILED",canceled:"CANCELLED",in_transit:"IN_TRANSIT",pending:"PENDING"} as const)[remote.status];
+        if(!status)fail("PAYOUT_STATUS_UNSUPPORTED",`Unsupported Stripe payout status: ${remote.status}`);
         await this.sql`INSERT INTO seller_payout(seller_organisation_id,provider_payout_id,amount_minor,currency,status,expected_arrival_at,failure_message)
           VALUES(${account.seller_organisation_id},${remote.id},${remote.amount},${remote.currency.toUpperCase()},${status},to_timestamp(${remote.arrival_date}),${remote.failure_message??null})
           ON CONFLICT(provider_payout_id) DO UPDATE SET status=EXCLUDED.status,expected_arrival_at=EXCLUDED.expected_arrival_at,failure_message=EXCLUDED.failure_message,updated_at=now()`;
