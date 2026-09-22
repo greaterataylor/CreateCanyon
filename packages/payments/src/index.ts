@@ -40,7 +40,13 @@ export class PaymentEngine {
       JOIN license_variant v ON v.id=cl.license_variant_id WHERE cl.cart_id=${cartId} ORDER BY cl.created_at`;
     const lines = rows.map(r=>({id:r.id,listingId:r.listing_id,licenseVariantId:r.license_variant_id,title:r.title,licenseName:r.license_name,quantity:r.quantity,currency:r.currency,
       unitPriceMinor:minorToSafeNumber(r.unit_price_minor_snapshot),lineTotalMinor:minorToSafeNumber(money(r.unit_price_minor_snapshot)*BigInt(r.quantity))}));
-    return {...cart,lines,subtotalMinor:lines.reduce((sum,l)=>sum+l.lineTotalMinor,0)};
+    return {
+      id: cart.id as string,
+      currency: cart.currency as string,
+      status: cart.status as string,
+      lines,
+      subtotalMinor: lines.reduce((sum,l)=>sum+l.lineTotalMinor,0),
+    };
   }
   async addLine(userId:string, input:{listingId:string;licenseVariantId:string;quantity:number}) {
     const [offer] = await this.sql`SELECT p.*,o.amount_minor AS selected_price,o.currency AS selected_currency FROM public_listing p
