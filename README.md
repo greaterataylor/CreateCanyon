@@ -6,7 +6,7 @@ This ZIP is a substantial reconstruction of the supplied partial repository, not
 
 ## Critical dependency notice
 
-The checked npm `next/latest` response was **16.3.5**. Next.js announced an upcoming critical upstream security update for **22 September 2026**, with planned releases **16.3.6 / 15.5.26**. Publication of the patch and the complete impact advisory was not established at delivery. The source retains the registry-observed exact pin for isolated local development; it is **not approved for Internet exposure**. `pnpm release:check` and the Vercel build commands deliberately block that pin, missing lockfiles, and unapproved release reviews. Review the complete advisory and update every Next.js consumer before generating the production lockfile. The version floor alone is not a complete vulnerability assessment. See [SECURITY](docs/SECURITY.md).
+The Next.js consumers are pinned to the reviewed **16.3.6** security release. `pnpm release:check` and the Vercel build commands still require a lockfile and explicit release-review approval before a public deployment. The version floor alone is not a complete vulnerability assessment. See [SECURITY](docs/SECURITY.md).
 
 ## Applications
 
