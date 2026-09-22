@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "Secure multi-brand digital asset marketplace network for CreateCanyon and its specialist channels.",
-  "packageManager": "pnpm@11.15.1",
+  "packageManager": "pnpm@10.28.1",
   "engines": {
     "node": "22.x"
   },
