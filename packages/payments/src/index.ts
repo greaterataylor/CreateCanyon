@@ -121,7 +121,9 @@ export class PaymentEngine {
       const subtotal=lines.reduce((sum,l)=>sum+money(l.selected_price)*BigInt(l.quantity),0n);
       if(this.env.TAX_MODE==="stripe" && subtotal>0n){
         if(!input.billingAddress)fail("BILLING_ADDRESS_REQUIRED","A billing address is required to calculate tax");
-        const calc=await this.stripe.tax.calculations.create({currency:cart.currency.toLowerCase(),customer_details:{address:input.billingAddress,address_source:"billing"},
+        const {line2,state,...requiredAddress}=input.billingAddress;
+        const address={...requiredAddress,...(line2===undefined?{}:{line2}),...(state===undefined?{}:{state})};
+        const calc=await this.stripe.tax.calculations.create({currency:cart.currency.toLowerCase(),customer_details:{address,address_source:"billing"},
           line_items:lines.map(l=>({amount:minorToSafeNumber(money(l.selected_price)*BigInt(l.quantity)),reference:l.cart_line_id,tax_behavior:"exclusive" as const,tax_code:this.env.STRIPE_TAX_CODE})),expand:["line_items"]});
         calculationId=calc.id;
         for(const line of calc.line_items?.data??[])taxes.set(line.reference,BigInt(line.amount_tax));
