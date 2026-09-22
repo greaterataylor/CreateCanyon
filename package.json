@@ -4,7 +4,9 @@
   "private": true,
   "description": "Secure multi-brand digital asset marketplace network for CreateCanyon and its specialist channels.",
   "packageManager": "pnpm@11.15.1",
-  "engines": { "node": ">=22.16.0 <25" },
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "turbo dev --parallel",
     "build": "turbo build --concurrency=1",
