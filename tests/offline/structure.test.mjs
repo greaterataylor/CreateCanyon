@@ -23,5 +23,8 @@ test('Next project deployment never points to API dist as a static site',async()
  assert.equal(rootConfig.framework,'nextjs');
  assert.equal(rootConfig.outputDirectory,'apps/storefront/.next');
  assert.match(rootConfig.buildCommand,/--filter=@createcanyon\/storefront(?:\s|$)/);
- for(const app of ['storefront','dashboard','admin']){const config=JSON.parse(await readFile(path.join(root,'apps',app,'vercel.json'),'utf8'));assert.equal(config.framework,'nextjs');assert.notEqual(config.outputDirectory,'apps/api/dist');}
+ assert.doesNotMatch(rootConfig.buildCommand,/release-check/);
+ for(const app of ['storefront','dashboard','admin']){const config=JSON.parse(await readFile(path.join(root,'apps',app,'vercel.json'),'utf8'));assert.equal(config.framework,'nextjs');assert.notEqual(config.outputDirectory,'apps/api/dist');assert.doesNotMatch(config.buildCommand,/release-check/);}
+ const workflow=await readFile(path.join(root,'.github/workflows/ci.yml'),'utf8');
+ assert.match(workflow,/pnpm release:check/);
 });
