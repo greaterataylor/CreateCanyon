@@ -2,15 +2,14 @@
 
 **This is not a penetration-tested or production-certified platform.** Report suspected defects privately to the deployment owner's security contact. A network security mailbox has not been provisioned by this source delivery.
 
-## September 2026 framework release blocker
+## September 2026 framework security update
 
-On 22 September 2026 the official `next/latest` metadata returned 16.3.5. The official Next.js announcement dated 21 September planned an out-of-band update to 16.3.6 and 15.5.26 for a critical upstream issue on 22 September. The complete advisory and patch availability were not established. Sources checked:
+Next.js announced an out-of-band update to 16.3.6 and 15.5.26 for a critical upstream issue. This workspace now pins the 16.3.6 security release across every Next.js consumer. Sources to review before approving a public release:
 
 - https://nextjs.org/blog/upcoming-nextjs-security-release-september-22-2026
-- https://registry.npmjs.org/next/latest
 - Advisory named by that announcement: GHSA-vcvr-r3jv-pc5j.
 
-The Next.js 16.3.5 pins in all three apps and `packages/web` are for isolated local source evaluation only. Public release is deliberately blocked. Review the complete advisory, including any React or other dependency remediation it specifies; use the actual published patched version; update all consumers together; generate/review the lockfile; run the full acceptance suite. Do not manufacture a lockfile, pin an unverified nonexistent release, or remove the release check to make deployment green. The floor in the check is a known-minimum gate, not a substitute for checking later advisories.
+The Next.js 16.3.6 pins satisfy the known minimum version gate. Public release remains deliberately blocked until the complete advisory (including any React or other dependency remediation it specifies) has been reviewed, the lockfile has been generated and reviewed, and the full acceptance suite has passed. Set `RELEASE_REVIEW_APPROVED=true` in the deployment environment only after completing that review. The floor in the check is a known-minimum gate, not a substitute for checking later advisories.
 
 ## Implemented controls
 
@@ -32,4 +31,4 @@ Audit hashes are tamper-evident relative to their history, not magically immutab
 
 ## Dependency and release hygiene
 
-Direct application dependencies are exact pins; no real pnpm lockfile could be generated in the offline environment. Some local Docker tags and CI action major tags are mutable, and processor OS packages are not immutable-digest pinned. Generate a reviewed lockfile, pin approved images/actions by verified digest/commit, scan dependencies and containers, produce retained SBOMs and sign deployment artifacts before production. Do not infer a completed supply-chain program from the starter CI file.
+Direct application dependencies use exact pins. Some local Docker tags and CI action major tags are mutable, and processor OS packages are not immutable-digest pinned. Generate and review the lockfile, pin approved images/actions by verified digest/commit, scan dependencies and containers, produce retained SBOMs and sign deployment artifacts before production. Do not infer a completed supply-chain program from the starter CI file.
