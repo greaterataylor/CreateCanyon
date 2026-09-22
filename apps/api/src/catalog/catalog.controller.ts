@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Patch, Post, Query } from "@nestjs/common
 import { createItemSchema, publicCatalogQuerySchema, storefrontKeySchema, updateListingSchema } from "@createcanyon/contracts";
 import { CurrentPrincipal, Public } from "../auth/auth.decorators.js";
 import type { Principal } from "../auth/auth.types.js";
-import { parseWith } from "../common/zod.js";
+import { parseWithSchema } from "../common/zod.js";
 import { CatalogService } from "./catalog.service.js";
 
 @Controller()
@@ -11,7 +11,7 @@ export class CatalogController {
 
   @Public()
   @Get("catalog")
-  public list(@Query() query: unknown) { return this.catalog.publicList(parseWith(publicCatalogQuerySchema, query)); }
+  public list(@Query() query: unknown) { return this.catalog.publicList(parseWithSchema(publicCatalogQuerySchema, query)); }
 
   @Public()
   @Get("catalog/:channel/:slug")
@@ -21,7 +21,7 @@ export class CatalogController {
 
   @Post("seller/items")
   public create(@CurrentPrincipal() principal: Principal, @Body() body: unknown) {
-    return this.catalog.create(principal, parseWith(createItemSchema, body));
+    return this.catalog.create(principal, parseWithSchema(createItemSchema, body));
   }
 
   @Get("seller/:sellerId/items")
@@ -31,6 +31,6 @@ export class CatalogController {
 
   @Patch("seller/listings/:listingId")
   public updateListing(@CurrentPrincipal() principal: Principal, @Param("listingId") listingId: string, @Body() body: unknown) {
-    return this.catalog.updateListing(principal, listingId, parseWith(updateListingSchema, body));
+    return this.catalog.updateListing(principal, listingId, parseWithSchema(updateListingSchema, body));
   }
 }

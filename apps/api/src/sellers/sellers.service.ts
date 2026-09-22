@@ -6,7 +6,7 @@ import {
   sellerOrganisations,
   type DatabaseConnection,
 } from "@createcanyon/database";
-import { slugify } from "@createcanyon/domain";
+import { normalizeSlug } from "@createcanyon/domain";
 import { ConflictException, ForbiddenException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { and, eq } from "drizzle-orm";
 import Stripe from "stripe";
@@ -37,7 +37,7 @@ export class SellersService {
 
   public async create(principal: Principal, input: SellerCreateInput) {
     const user = await this.users.resolveUser(principal);
-    const base = slugify(input.displayName);
+    const base = normalizeSlug(input.displayName);
     const slug = `${base}-${crypto.randomUUID().slice(0, 8)}`;
     try {
       return await this.connection.db.transaction(async (tx) => {

@@ -56,6 +56,15 @@ interface CheckoutLine {
   readonly itemMetadata: Record<string, unknown>;
 }
 
+interface CheckoutResponse {
+  readonly state: "PAID" | "REQUIRES_PAYMENT";
+  readonly orderId: string;
+  readonly orderNumber: string;
+  readonly mode?: "stub";
+  readonly paymentIntentId?: string;
+  readonly clientSecret?: string | null;
+}
+
 function serializeCart(cart: { id: string; currency: string; status: string }, lines: Array<{ id: string; listingId: string; title: string; quantity: number; unitPriceMinorSnapshot: bigint; currency: string; licenseVariantId: string; licenseName: string }>) {
   const serializedLines = lines.map((line) => ({ ...line, unitPriceMinor: Number(line.unitPriceMinorSnapshot), lineTotalMinor: Number(line.unitPriceMinorSnapshot * BigInt(line.quantity)) }));
   return { ...cart, lines: serializedLines, subtotalMinor: serializedLines.reduce((sum, line) => sum + line.lineTotalMinor, 0) };
@@ -132,7 +141,7 @@ export class CommerceService {
     return serializeCart(line.cart, await this.cartLines(line.cart.id));
   }
 
-  public async checkout(principal: Principal, input: CheckoutInput, idempotencyKey: string) {
+  public async checkout(principal: Principal, input: CheckoutInput, idempotencyKey: string): Promise<CheckoutResponse | Record<string, unknown>> {
     if (!/^[A-Za-z0-9._:-]{8,255}$/.test(idempotencyKey)) throw new BadRequestException({ code: "INVALID_IDEMPOTENCY_KEY", message: "A valid Idempotency-Key header is required" });
     this.assertReturnUrl(input.successUrl);
     this.assertReturnUrl(input.cancelUrl);
@@ -324,9 +333,9 @@ export class CommerceService {
     const sellerTotals = new Map<string, bigint>();
     for (const line of lines) sellerTotals.set(line.sellerOrganisationId, (sellerTotals.get(line.sellerOrganisationId) ?? 0n) + line.sellerEarningsMinor);
     assertBalancedJournal([
-      { accountCode: "STRIPE_CLEARING", debitMinor: total, creditMinor: 0n },
-      { accountCode: "PLATFORM_REVENUE", debitMinor: 0n, creditMinor: totalPlatformFee },
-      ...[...sellerTotals].map(([sellerId, amount]) => ({ accountCode: `SELLER_PAYABLE_${sellerId}`, debitMinor: 0n, creditMinor: amount })),
+      { accountId: "STRIPE_CLEARING", debitMinor: total, creditMinor: 0n, currency: record.order.currency },
+      { accountId: "PLATFORM_REVENUE", debitMinor: 0n, creditMinor: totalPlatformFee, currency: record.order.currency },
+      ...[...sellerTotals].map(([sellerId, amount]) => ({ accountId: `SELLER_PAYABLE_${sellerId}`, debitMinor: 0n, creditMinor: amount, currency: record.order.currency })),
     ]);
 
     await this.connection.db.transaction(async (tx) => {

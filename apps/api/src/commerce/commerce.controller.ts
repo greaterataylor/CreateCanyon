@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, Headers, Param, Post, Query, RawBodyRequest, Req } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Headers, Param, Post, Query, Req } from "@nestjs/common";
+import type { RawBodyRequest } from "@nestjs/common";
 import { addCartLineSchema, checkoutSchema } from "@createcanyon/contracts";
 import type { FastifyRequest } from "fastify";
 import { CurrentPrincipal, Public } from "../auth/auth.decorators.js";
 import type { Principal } from "../auth/auth.types.js";
-import { parseWith } from "../common/zod.js";
+import { parseWithSchema } from "../common/zod.js";
 import { CommerceService } from "./commerce.service.js";
 
 @Controller()
@@ -17,7 +18,7 @@ export class CommerceController {
 
   @Post("cart/lines")
   public add(@CurrentPrincipal() principal: Principal, @Body() body: unknown) {
-    return this.commerce.addLine(principal, parseWith(addCartLineSchema, body));
+    return this.commerce.addLine(principal, parseWithSchema(addCartLineSchema, body));
   }
 
   @Delete("cart/lines/:lineId")
@@ -27,7 +28,7 @@ export class CommerceController {
 
   @Post("checkout")
   public checkout(@CurrentPrincipal() principal: Principal, @Headers("idempotency-key") idempotencyKey: string | undefined, @Body() body: unknown) {
-    return this.commerce.checkout(principal, parseWith(checkoutSchema, body), idempotencyKey ?? "");
+    return this.commerce.checkout(principal, parseWithSchema(checkoutSchema, body), idempotencyKey ?? "");
   }
 
   @Public()

@@ -10,7 +10,7 @@ import {
   storefronts,
   type DatabaseConnection,
 } from "@createcanyon/database";
-import { eligibleChannels, slugify, validateChannelSelection } from "@createcanyon/domain";
+import { eligibleChannels, normalizeSlug, validateChannelSelection } from "@createcanyon/domain";
 import { BadRequestException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { and, asc, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import type { Principal } from "../auth/auth.types.js";
@@ -106,7 +106,7 @@ export class CatalogService {
       .limit(query.pageSize)
       .offset(offset);
 
-    const [{ count }] = await this.connection.db
+    const [countRow] = await this.connection.db
       .select({ count: sql<number>`count(distinct ${channelListings.id})::int` })
       .from(channelListings)
       .innerJoin(storefronts, eq(channelListings.storefrontId, storefronts.id))
@@ -115,7 +115,7 @@ export class CatalogService {
       .innerJoin(offers, eq(offers.licenseVariantId, licenseVariants.id))
       .where(and(...conditions));
 
-    return { items: rows.map(asPublicListing), page: query.page, pageSize: query.pageSize, total: count ?? 0 };
+    return { items: rows.map(asPublicListing), page: query.page, pageSize: query.pageSize, total: countRow?.count ?? 0 };
   }
 
   public async publicGet(channel: StorefrontKey, slug: string) {
@@ -202,7 +202,7 @@ export class CatalogService {
       }).returning();
       if (!version) throw new Error("Item version insert returned no row");
       await tx.update(catalogItems).set({ currentVersionId: version.id, updatedAt: new Date() }).where(eq(catalogItems.id, item.id));
-      const slugBase = `${slugify(input.title)}-${item.id.slice(0, 8)}`;
+      const slugBase = `${normalizeSlug(input.title)}-${item.id.slice(0, 8)}`;
       const listingRows = await tx.insert(channelListings).values(storefrontRows.map((storefront) => ({
         itemId: item.id,
         storefrontId: storefront.id,
