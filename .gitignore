@@ -1,0 +1,13 @@
+node_modules
+.pnpm-store
+.next
+dist
+coverage
+.turbo
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log
+packages/database/migrations/meta/_journal.json.tmp
