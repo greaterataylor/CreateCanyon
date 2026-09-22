@@ -86,7 +86,7 @@ export class AdministrationService {
       return {id,decision:input.decision};
     });
   }
-  async seller(p:Principal,id:string,input:{status?:string;payoutHoldUntil?:string|null;reason:string}){
+  async seller(p:Principal,id:string,input:{status?:string|undefined;payoutHoldUntil?:string|null|undefined;reason:string}){
     const user=await this.users.resolveUser(p);
     return this.connection.client.begin(async tx=>{
       const [s]=await tx`SELECT * FROM seller_organisation WHERE id=${id} FOR UPDATE`;if(!s)throw new NotFoundException("Seller not found");
