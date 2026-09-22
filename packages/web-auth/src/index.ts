@@ -14,7 +14,7 @@ interface Session extends PublicSession {id:string;accessToken:string;refreshTok
 const random=(size=32)=>randomBytes(size).toString("base64url");
 export class AuthFlowError extends Error { constructor(message:string,public readonly code:string){super(message);this.name="AuthFlowError";} }
 export class WebAuth {
-  private readonly redis:Redis; private readonly key:Uint8Array; private readonly prefix:string;private discovery?:Promise<Metadata>;
+  private readonly redis:Redis; private readonly key:Uint8Array; private readonly prefix:string;private discovery:Promise<Metadata>|undefined;
   private jwks?:ReturnType<typeof createRemoteJWKSet>;
   constructor(private readonly env:WebEnvironment){
     this.redis=new Redis(env.REDIS_URL,{lazyConnect:true,connectTimeout:5000,maxRetriesPerRequest:2});
@@ -93,7 +93,8 @@ export class WebAuth {
     }
     try{
       const latest=await this.load(id);if(!latest)return null;if(latest.accessTokenExpiresAt>now+45)return latest;
-      const tokens=await this.exchange({grant_type:"refresh_token",refresh_token:latest.refreshToken!});
+      if(!latest.refreshToken)throw new Error("Refresh token is missing");
+      const tokens=await this.exchange({grant_type:"refresh_token",refresh_token:latest.refreshToken});
       const access=await this.verifyAccess(tokens.access_token);if(access.sub!==latest.subject)throw new Error("Subject changed during refresh");
       const next:Session={...latest,accessToken:tokens.access_token,refreshToken:tokens.refresh_token??latest.refreshToken,
         idToken:tokens.id_token??latest.idToken,roles:this.roles(access),authenticationMethods:access.amr??[],
