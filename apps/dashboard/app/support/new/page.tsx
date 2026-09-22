@@ -1,0 +1,2 @@
+import {PageHeading} from '@createcanyon/web/components';import {SupportForm} from '../../../components/forms';
+export default async function Page({searchParams}:{searchParams:Promise<{orderLineId?:string}>}){const {orderLineId}=await searchParams;return <><PageHeading title="How can we help?">Never share card details, passwords or sensitive identity documents in a support message.</PageHeading><section className="panel"><SupportForm {...(orderLineId?{orderLineId}:{})}/></section></>;}

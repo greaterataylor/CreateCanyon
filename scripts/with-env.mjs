@@ -1,0 +1,11 @@
+import { spawn } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+const envFile = resolve(import.meta.dirname, '../.env');
+if (existsSync(envFile)) process.loadEnvFile(envFile);
+const [cmd, ...args] = process.argv.slice(2);
+if (!cmd) throw new Error('A command is required');
+const child = spawn(cmd, args, { stdio: 'inherit', env: process.env, shell: process.platform === 'win32' });
+for (const signal of ['SIGINT','SIGTERM']) process.on(signal, () => child.kill(signal));
+child.on('error', e => { console.error(e.message); process.exitCode = 1; });
+child.on('exit', code => { process.exitCode = code ?? 1; });

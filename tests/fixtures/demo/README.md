@@ -1,0 +1,1 @@
+These tiny original fixtures were generated for this repository. They contain no third-party images, music, fonts, credentials or commercial assets. The optional demo loader is development-only and explicitly marks them as unscanned demonstration data. The font draft contains no font file.

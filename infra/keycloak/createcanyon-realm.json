@@ -1,0 +1,326 @@
+{
+  "realm": "createcanyon",
+  "enabled": true,
+  "displayName": "CreateCanyon Network \u2014 LOCAL DEVELOPMENT",
+  "sslRequired": "none",
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": false,
+  "loginWithEmailAllowed": true,
+  "resetPasswordAllowed": true,
+  "verifyEmail": false,
+  "bruteForceProtected": true,
+  "failureFactor": 5,
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 28800,
+  "revokeRefreshToken": true,
+  "refreshTokenMaxReuse": 0,
+  "roles": {
+    "realm": [
+      {
+        "name": "buyer"
+      },
+      {
+        "name": "seller"
+      },
+      {
+        "name": "admin"
+      },
+      {
+        "name": "security_admin"
+      },
+      {
+        "name": "support"
+      },
+      {
+        "name": "reviewer"
+      },
+      {
+        "name": "payments"
+      },
+      {
+        "name": "trust_safety"
+      }
+    ]
+  },
+  "webAuthnPolicyRpEntityName": "CreateCanyon local",
+  "webAuthnPolicyRpId": "localhost",
+  "webAuthnPolicyUserVerificationRequirement": "required",
+  "webAuthnPolicyAvoidSameAuthenticatorRegister": true,
+  "authenticatorConfig": [
+    {
+      "alias": "cc-password-reference",
+      "config": {
+        "default.reference.value": "pwd",
+        "default.reference.maxAge": "900"
+      }
+    },
+    {
+      "alias": "cc-webauthn-reference",
+      "config": {
+        "default.reference.value": "webauthn",
+        "default.reference.maxAge": "900"
+      }
+    }
+  ],
+  "authenticationFlows": [
+    {
+      "id": "cc000000-0000-4000-8000-000000000001",
+      "alias": "cc-phishing-resistant",
+      "description": "Password and a registered WebAuthn authenticator, always required. No cookie-only bypass.",
+      "providerId": "basic-flow",
+      "topLevel": true,
+      "builtIn": false,
+      "authenticationExecutions": [
+        {
+          "authenticator": "auth-username-password-form",
+          "requirement": "REQUIRED",
+          "priority": 10,
+          "authenticatorFlow": false,
+          "authenticatorConfig": "cc-password-reference"
+        },
+        {
+          "authenticator": "webauthn-authenticator",
+          "requirement": "REQUIRED",
+          "priority": 20,
+          "authenticatorFlow": false,
+          "authenticatorConfig": "cc-webauthn-reference"
+        }
+      ]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "cc-storefront",
+      "name": "CreateCanyon storefront",
+      "protocol": "openid-connect",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "local-storefront-client-secret-change-me",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:3000/api/auth/callback",
+        "http://createcanyon.localhost:3000/api/auth/callback",
+        "http://graphicgrounds.localhost:3000/api/auth/callback",
+        "http://melodymerchant.localhost:3000/api/auth/callback",
+        "http://filefoyer.localhost:3000/api/auth/callback",
+        "http://programplaza.localhost:3000/api/auth/callback"
+      ],
+      "webOrigins": [
+        "http://localhost:3000",
+        "http://createcanyon.localhost:3000",
+        "http://graphicgrounds.localhost:3000",
+        "http://melodymerchant.localhost:3000",
+        "http://filefoyer.localhost:3000",
+        "http://programplaza.localhost:3000"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:3000##http://createcanyon.localhost:3000##http://graphicgrounds.localhost:3000##http://melodymerchant.localhost:3000##http://filefoyer.localhost:3000##http://programplaza.localhost:3000"
+      },
+      "defaultClientScopes": [
+        "web-origins",
+        "profile",
+        "roles",
+        "email"
+      ],
+      "protocolMappers": [
+        {
+          "name": "createcanyon-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "createcanyon-api",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        },
+        {
+          "name": "executed-authentication-methods",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-amr-mapper",
+          "consentRequired": false,
+          "config": {
+            "access.token.claim": "true",
+            "id.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "cc-dashboard",
+      "name": "CreateCanyon dashboard",
+      "protocol": "openid-connect",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "local-dashboard-client-secret-change-me",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:3001/api/auth/callback"
+      ],
+      "webOrigins": [
+        "http://localhost:3001"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:3001"
+      },
+      "defaultClientScopes": [
+        "web-origins",
+        "profile",
+        "roles",
+        "email"
+      ],
+      "protocolMappers": [
+        {
+          "name": "createcanyon-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "createcanyon-api",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        },
+        {
+          "name": "executed-authentication-methods",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-amr-mapper",
+          "consentRequired": false,
+          "config": {
+            "access.token.claim": "true",
+            "id.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "cc-admin",
+      "name": "CreateCanyon admin",
+      "protocol": "openid-connect",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "local-admin-client-secret-change-me",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:3002/api/auth/callback"
+      ],
+      "webOrigins": [
+        "http://localhost:3002"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:3002"
+      },
+      "defaultClientScopes": [
+        "web-origins",
+        "profile",
+        "roles",
+        "email"
+      ],
+      "protocolMappers": [
+        {
+          "name": "createcanyon-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "createcanyon-api",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        },
+        {
+          "name": "executed-authentication-methods",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-amr-mapper",
+          "consentRequired": false,
+          "config": {
+            "access.token.claim": "true",
+            "id.token.claim": "true"
+          }
+        }
+      ],
+      "authenticationFlowBindingOverrides": {
+        "browser": "cc000000-0000-4000-8000-000000000001"
+      }
+    }
+  ],
+  "users": [
+    {
+      "id": "22222222-2222-4222-8222-222222222222",
+      "username": "buyer",
+      "email": "buyer@example.test",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "Local",
+      "lastName": "Buyer",
+      "realmRoles": [
+        "buyer"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Local-buyer-only-2026!",
+          "temporary": false
+        }
+      ],
+      "requiredActions": []
+    },
+    {
+      "id": "11111111-1111-4111-8111-111111111111",
+      "username": "seller",
+      "email": "seller@example.test",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "Local",
+      "lastName": "Seller",
+      "realmRoles": [
+        "seller"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Local-seller-only-2026!",
+          "temporary": false
+        }
+      ],
+      "requiredActions": []
+    },
+    {
+      "id": "33333333-3333-4333-8333-333333333333",
+      "username": "admin",
+      "email": "admin@example.test",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "Local",
+      "lastName": "Admin",
+      "realmRoles": [
+        "admin"
+      ],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Local-admin-only-2026!",
+          "temporary": false
+        }
+      ],
+      "requiredActions": [
+        "webauthn-register"
+      ]
+    }
+  ],
+  "smtpServer": {
+    "host": "mailpit",
+    "port": "1025",
+    "from": "no-reply@createcanyon.localhost"
+  }
+}

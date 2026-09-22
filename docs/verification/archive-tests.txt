@@ -1,0 +1,21 @@
+test_case_collision (test_archive_guard.ArchiveTests.test_case_collision) ... ok
+test_compression_ratio (test_archive_guard.ArchiveTests.test_compression_ratio) ... ok
+test_encrypted_flag_rejected (test_archive_guard.ArchiveTests.test_encrypted_flag_rejected) ... ok
+test_entry_limit (test_archive_guard.ArchiveTests.test_entry_limit) ... ok
+test_expanded_limit (test_archive_guard.ArchiveTests.test_expanded_limit) ... ok
+test_gzip_stream_limit (test_archive_guard.ArchiveTests.test_gzip_stream_limit) ... ok
+test_member_limit (test_archive_guard.ArchiveTests.test_member_limit) ... ok
+test_nested_depth (test_archive_guard.ArchiveTests.test_nested_depth) ... ok
+test_nested_manifest (test_archive_guard.ArchiveTests.test_nested_manifest) ... ok
+test_nonarchive_is_not_executed (test_archive_guard.ArchiveTests.test_nonarchive_is_not_executed) ... ok
+test_path_depth (test_archive_guard.ArchiveTests.test_path_depth) ... ok
+test_tar_links_devices_and_sparse (test_archive_guard.ArchiveTests.test_tar_links_devices_and_sparse) ... ok
+test_unsafe_names (test_archive_guard.ArchiveTests.test_unsafe_names) ... ok
+test_valid_manifest_and_hash (test_archive_guard.ArchiveTests.test_valid_manifest_and_hash) ... ok
+test_zip_crc_rejected (test_archive_guard.ArchiveTests.test_zip_crc_rejected) ... ok
+test_zip_symlink (test_archive_guard.ArchiveTests.test_zip_symlink) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.026s
+
+OK

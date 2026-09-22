@@ -1,0 +1,29 @@
+{
+  "name": "@createcanyon/payments",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@createcanyon/config": "workspace:*",
+    "@createcanyon/database": "workspace:*",
+    "@createcanyon/domain": "workspace:*",
+    "stripe": "20.0.0",
+    "postgres": "3.4.7"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "@types/node": "22.18.0",
+    "vitest": "4.1.10"
+  }
+}

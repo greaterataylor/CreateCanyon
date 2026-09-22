@@ -1,0 +1,2 @@
+import type {MetadataRoute} from 'next';import {storefrontContext} from '@createcanyon/web/server';
+export default async function robots():Promise<MetadataRoute.Robots>{const c=await storefrontContext();return {rules:{userAgent:'*',allow:process.env.INDEX_STOREFRONT==='true'?'/':undefined,disallow:process.env.INDEX_STOREFRONT==='true'?['/api/','/cart','/catalog?','/report/']:'/'},sitemap:`https://${c.hostname}/sitemap.xml`};}

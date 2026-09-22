@@ -1,0 +1,7 @@
+PUBLIC RELEASE BLOCKED
+ - apps/admin: Next.js 16.3.5 is below the approved minimum 16.3.6. Read docs/SECURITY.md and the complete upstream advisory first.
+ - apps/dashboard: Next.js 16.3.5 is below the approved minimum 16.3.6. Read docs/SECURITY.md and the complete upstream advisory first.
+ - apps/storefront: Next.js 16.3.5 is below the approved minimum 16.3.6. Read docs/SECURITY.md and the complete upstream advisory first.
+ - packages/web: Next.js 16.3.5 is below the approved minimum 16.3.6. Read docs/SECURITY.md and the complete upstream advisory first.
+ - No pnpm-lock.yaml. Generate and review a real lockfile, then install with --frozen-lockfile.
+ - RELEASE_REVIEW_APPROVED=true must be set only after the documented launch checklist and dependency advisory review are complete.

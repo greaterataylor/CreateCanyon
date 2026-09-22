@@ -1,0 +1,15 @@
+rules:
+  - id: createcanyon-suspicious-js-eval
+    languages: [javascript, typescript]
+    message: Dynamic execution requires manual security review.
+    severity: ERROR
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: new Function(...)
+  - id: createcanyon-suspicious-python-exec
+    languages: [python]
+    message: Dynamic execution requires manual security review.
+    severity: ERROR
+    pattern-either:
+      - pattern: exec(...)
+      - pattern: eval(...)

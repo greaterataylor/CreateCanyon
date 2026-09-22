@@ -1,0 +1,37 @@
+# Deployment and the original 404
+
+## Topology
+
+The storefront must be the resource serving `/` for the five public domains. Do not deploy `apps/api/dist` as static output. The root configuration doing that was removed. This source delivery does not change a Vercel project, domain assignment, DNS record or live application.
+
+Create separate web projects with roots `apps/storefront`, `apps/dashboard`, and `apps/admin`. Their local `vercel.json` files select Next.js and build the selected app and its workspace dependencies from the repository root. Enable access to files outside the selected root as required by your monorepo project settings. They use a frozen lockfile and the explicit release gate. The default build will fail until the security/dependency/review blockers are resolved; do not treat changing the output directory as a bypass.
+
+Attach `createcanyon.com`, `graphicgrounds.com`, `melodymerchant.com`, `filefoyer.com`, and `programplaza.com` to the **storefront** project, not the API. Add corresponding `www` aliases only when deliberately configured in both the deployment and `HOST_ALLOWLIST`. The account application can serve `account.createcanyon.com`, `sell.createcanyon.com` and `checkout.createcanyon.com`, but each needs its own allowlist entry and exact IdP callbacks. `admin.createcanyon.com` belongs to the restricted admin project. Configure central dashboard URLs consistently. Automatic cross-root-domain cookie sharing is not used.
+
+Deploy the API as a separate always-on Node container/process and the worker application as separate processes by `WORKER_KIND`. `infra/Dockerfile.node` is a starting recipe, not a provisioned production cloud. It requires the real lockfile. The API is bootstrapped from `apps/api/src/main.ts`, uses Fastify, and registers raw-body capture for signed Stripe webhooks. File processing and indefinitely running outbox loops should not be treated as short-lived page handlers.
+
+## Required production settings
+
+Resolve the complete Next.js advisory, update all framework consumers to the reviewed patched line, regenerate and commit the lockfile, then prove `pnpm install --frozen-lockfile`, `pnpm typecheck`, `pnpm test`, `pnpm test:integration`, browser acceptance and `pnpm build`. Set `RELEASE_REVIEW_APPROVED=true` only after the documented review; the flag does not perform that review for you.
+
+Supply separate app OIDC client IDs/secrets, exact HTTPS callbacks/logout URLs, verified API audience, a reachable HTTPS issuer, Redis credentials and a strong session secret. Set explicit `HOST_ALLOWLIST`, `API_BASE_URL`, application URLs and browser upload/preview origins. Public-facing URLs must not refer to localhost. Set each Next app's secrets server-side only; only the Stripe publishable key is browser-public. Admin network access should additionally be restricted through your private access gateway.
+
+API/workers need private PostgreSQL/Redis connectivity, separate migration and runtime roles, private S3 originals/quarantine, a public-preview-only CDN origin, and short-lived IAM permissions rather than developer credentials. Set `NODE_ENV=production`, `PAYMENTS_MODE=stripe`, `TAX_MODE=stripe`, reviewed tax codes/countries/currencies, reserve/commission settings, real Stripe secrets and `PRODUCTION_LAUNCH_APPROVED=true` only after approval. The current source does not implement every regulatory or commercial eligibility policy.
+
+Register the API endpoint **`POST /v1/webhooks/stripe`** in Stripe and preserve raw request bytes. This path is declared by `CommerceController`, with the global `/v1` prefix from the API bootstrap. Configure the same Stripe account/mode and credentials across the API and payment/tax/transfer workers. Confirm supported events in `PaymentEngine.handleEvent` and test duplicate and out-of-order delivery. Settlement is determined by the provider and server-side records, never by the browser redirect.
+
+Production file workers require `PROCESSOR_MODE=container`, actual ClamAV readiness, no development bypass, and a reviewed pinned processor image. All four required code scanners must be installed and supplied with trusted offline rules/databases for ProgramPlaza. The local Docker-executor approach must be replaced or isolated appropriately for production; never give the public API access to the host Docker socket. The supplied code does not provision the recommended separate cloud account or signed job-result transport.
+
+The API currently uses `trustProxy=false` and an in-process IP limiter. Configure a reviewed trusted ingress arrangement and shared per-user/IP limits for production; do not blindly trust `X-Forwarded-For`. Server-side browser requests otherwise share the BFF's source IP. Add monitoring for outbox failure/age, stale payments, tax jobs, transfer holds, AV readiness, storage errors and audit verification.
+
+## Migration and operational rules
+
+Back up the database and verify a restore before the first live migration. Use a migration owner separately from the runtime role; inspect grants and do not assume RLS is enabled (it is not implemented here). The four delivered migrations are a new baseline for the supplied incomplete repository. Do not apply them blindly to an existing database with independently created tables. Reconcile that database's schema/data/history first. Migration files are hash-checked; after applying them, changes belong in new numbered migrations.
+
+Original objects must stay private. Test an unauthenticated direct object request, a refunded entitlement, a suspended copyright item, cross-buyer access and an expired URL. Preview access is public by design. Review bucket CORS, abort-incomplete-upload lifecycle, version retention, KMS, legal holds and least-privilege IAM separately. The local MinIO configuration is not a production policy.
+
+Keep audit checkpoints in a separate immutable account/store; the existing chain alone cannot protect against a sufficiently privileged database operator rewriting all history. Reconcile provider activity and internal journals daily; a complete automated reconciliation service is not included. Backups, point-in-time recovery, disaster recovery, privacy/retention handling and incident response are deployment responsibilities not delivered infrastructure.
+
+## Manual acceptance before connecting public domains
+
+Verify every hostname's branding, unsupported-host rejection and canonical URL; login/logout/refresh across different root domains; unauthorized resource requests; actual buyer and seller checkout; duplicate and reordered webhooks; tax receipts/adjustments; partial and full refunds before/after seller transfers; disputes; held and negative-balance scenarios; resumable uploads, scanner outages and hostile archives; private downloads; admin phishing-resistant MFA and seller step-up. Confirm that every relevant UI error is actionable and that logs do not expose tokens, uploaded secrets or unnecessary personal data.

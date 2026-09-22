@@ -1,0 +1,22 @@
+# Build example: docker build -f infra/Dockerfile.node --build-arg APP=api -t cc-api .
+# Requires the reviewed pnpm-lock.yaml generated after the first dependency install.
+FROM node:24-bookworm-slim AS build
+ARG APP=api
+ENV PNPM_HOME=/pnpm
+ENV PATH=$PNPM_HOME:$PATH
+RUN corepack enable
+WORKDIR /app
+COPY . .
+RUN test -f pnpm-lock.yaml && pnpm install --frozen-lockfile
+RUN pnpm exec turbo build --filter=@createcanyon/${APP}...
+FROM node:24-bookworm-slim
+ARG APP=api
+ENV NODE_ENV=production
+ENV CC_APP=$APP
+WORKDIR /app
+COPY --from=build --chown=node:node /app /app
+USER node
+CMD ["sh", "-c", "exec node apps/$CC_APP/dist/main.js"]
+# File workers need a separately operated sandbox executor. Do not expose a
+# production host Docker socket to a network-facing API container. This image
+# is directly usable for API/non-file workers; see deployment limitations.

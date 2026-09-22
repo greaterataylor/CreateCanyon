@@ -1,0 +1,41 @@
+name: validation
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  source-and-database:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.11-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: local-ci-only
+          POSTGRES_DB: createcanyon_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d createcanyon_test"
+          --health-interval 5s --health-timeout 5s --health-retries 15
+    env:
+      DATABASE_URL: postgresql://postgres:local-ci-only@127.0.0.1:5432/createcanyon_test
+      MIGRATION_DATABASE_URL: postgresql://postgres:local-ci-only@127.0.0.1:5432/createcanyon_test
+      INTEGRATION_DATABASE_URL: postgresql://postgres:local-ci-only@127.0.0.1:5432/createcanyon_test
+      NODE_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: corepack enable
+      - name: Require an actual reviewed lockfile
+        run: test -f pnpm-lock.yaml || { echo "Generate and review pnpm-lock.yaml using the README bootstrap instructions first."; exit 1; }
+      - run: corepack pnpm install --frozen-lockfile
+      - run: cp .env.example .env
+      - run: pnpm test:offline && pnpm test:python
+      - run: pnpm build && pnpm typecheck && pnpm test
+      - run: pnpm db:migrate && pnpm db:seed && pnpm test:integration
+      - run: pnpm audit --audit-level high
+      - name: Review minimum deployment prerequisites
+        run: pnpm release:check
+        env:
+          RELEASE_REVIEW_APPROVED: ${{ vars.RELEASE_REVIEW_APPROVED }}

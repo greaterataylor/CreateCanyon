@@ -1,0 +1,75 @@
+name: createcanyon
+services:
+  postgres:
+    image: postgres:17.11-alpine
+    environment:
+      POSTGRES_DB: createcanyon
+      POSTGRES_USER: createcanyon_owner
+      POSTGRES_PASSWORD: local-database-password-change-me
+    ports: ["127.0.0.1:5432:5432"]
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U createcanyon_owner -d createcanyon"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+  redis:
+    image: ${REDIS_IMAGE:-redis:7.4-alpine}
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "local-redis-password-change-me"]
+    ports: ["127.0.0.1:6379:6379"]
+    volumes: ["redis:/data"]
+  minio:
+    image: ${MINIO_IMAGE:-quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z}
+    command: server /data --console-address :9001
+    environment:
+      MINIO_ROOT_USER: local-minio-user
+      MINIO_ROOT_PASSWORD: local-minio-password-change-me
+      MINIO_API_CORS_ALLOW_ORIGIN: "http://localhost:3000,http://localhost:3001,http://localhost:3002,http://createcanyon.localhost:3000,http://graphicgrounds.localhost:3000,http://melodymerchant.localhost:3000,http://filefoyer.localhost:3000,http://programplaza.localhost:3000"
+    ports: ["127.0.0.1:9000:9000", "127.0.0.1:9001:9001"]
+    volumes: ["minio:/data"]
+  minio-init:
+    image: ${MINIO_CLIENT_IMAGE:-quay.io/minio/mc:latest}
+    depends_on: [minio]
+    entrypoint: ["/bin/sh", "/setup/init.sh"]
+    volumes: ["./minio:/setup:ro"]
+    restart: "no"
+  typesense:
+    image: typesense/typesense:29.0
+    command: ["--data-dir=/data", "--api-key=local-typesense-key-change-me", "--listen-port=8108"]
+    ports: ["127.0.0.1:8108:8108"]
+    volumes: ["typesense:/data"]
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.4
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: local-keycloak-database-change-me
+      KC_BOOTSTRAP_ADMIN_USERNAME: local-admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: local-keycloak-admin-change-me
+      KC_HOSTNAME: http://localhost:8080
+      KC_HTTP_ENABLED: "true"
+    depends_on:
+      postgres: {condition: service_healthy}
+    ports: ["127.0.0.1:8080:8080"]
+    volumes: ["./keycloak/createcanyon-realm.json:/opt/keycloak/data/import/createcanyon-realm.json:ro"]
+  mailpit:
+    image: ${MAILPIT_IMAGE:-axllent/mailpit:v1.27}
+    ports: ["127.0.0.1:1025:1025", "127.0.0.1:8025:8025"]
+  clamav:
+    image: ${CLAMAV_IMAGE:-clamav/clamav:stable}
+    ports: ["127.0.0.1:3310:3310"]
+    volumes:
+      - clamav:/var/lib/clamav
+      - ./clamav/limits.conf:/etc/clamav/clamd.conf:ro
+    # Signature downloads require Internet access. Until the daemon is ready,
+    # processing retries in quarantine rather than treating scans as successful.
+volumes:
+  postgres:
+  redis:
+  minio:
+  typesense:
+  clamav:

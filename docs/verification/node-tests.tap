@@ -1,0 +1,148 @@
+TAP version 13
+# Subtest: ClamAV clean verdict follows a complete framed upload
+ok 1 - ClamAV clean verdict follows a complete framed upload
+  ---
+  duration_ms: 26.336951
+  type: 'test'
+  ...
+# Subtest: ClamAV FOUND and limit/error responses fail closed
+ok 2 - ClamAV FOUND and limit/error responses fail closed
+  ---
+  duration_ms: 21.512698
+  type: 'test'
+  ...
+# Subtest: ClamAV truncated reply or silent close never counts as clean
+ok 3 - ClamAV truncated reply or silent close never counts as clean
+  ---
+  duration_ms: 11.071437
+  type: 'test'
+  ...
+# Subtest: ClamAV timeout and oversize streams fail closed
+ok 4 - ClamAV timeout and oversize streams fail closed
+  ---
+  duration_ms: 110.242522
+  type: 'test'
+  ...
+# Subtest: Proportional rounding allocates every minor unit deterministically
+ok 5 - Proportional rounding allocates every minor unit deterministically
+  ---
+  duration_ms: 1.818817
+  type: 'test'
+  ...
+# Subtest: Thousands of cumulative one-cent refunds never create negative shares and reverse the full original
+ok 6 - Thousands of cumulative one-cent refunds never create negative shares and reverse the full original
+  ---
+  duration_ms: 37.119783
+  type: 'test'
+  ...
+# Subtest: Partial refund intervals add exactly to one full refund
+ok 7 - Partial refund intervals add exactly to one full refund
+  ---
+  duration_ms: 0.26812
+  type: 'test'
+  ...
+# Subtest: Money cannot silently exceed JS safe integer range
+ok 8 - Money cannot silently exceed JS safe integer range
+  ---
+  duration_ms: 0.155761
+  type: 'test'
+  ...
+# Subtest: Journal application checks reject invalid amounts, imbalance, currencies, and empty journals
+ok 9 - Journal application checks reject invalid amounts, imbalance, currencies, and empty journals
+  ---
+  duration_ms: 0.447851
+  type: 'test'
+  ...
+# Subtest: Release gate rejects the pre-advisory pin, ranges, and unreviewed major lines
+ok 10 - Release gate rejects the pre-advisory pin, ranges, and unreviewed major lines
+  ---
+  duration_ms: 0.967714
+  type: 'test'
+  ...
+# Subtest: Unapproved release is blocked even after a future dependency update
+ok 11 - Unapproved release is blocked even after a future dependency update
+  ---
+  duration_ms: 14.320544
+  type: 'test'
+  ...
+# Subtest: All five allowlisted channel hosts resolve without trusting forwarded input
+ok 12 - All five allowlisted channel hosts resolve without trusting forwarded input
+  ---
+  duration_ms: 1.601986
+  type: 'test'
+  ...
+# Subtest: Host allowlist rejects spoofed, combined, URL-form, and unexpected hosts
+ok 13 - Host allowlist rejects spoofed, combined, URL-form, and unexpected hosts
+  ---
+  duration_ms: 0.528653
+  type: 'test'
+  ...
+# Subtest: Login return paths cannot become external redirects
+ok 14 - Login return paths cannot become external redirects
+  ---
+  duration_ms: 0.277868
+  type: 'test'
+  ...
+# Subtest: SHA-256 published empty, abc, and million-a vectors
+ok 15 - SHA-256 published empty, abc, and million-a vectors
+  ---
+  duration_ms: 76.76264
+  type: 'test'
+  ...
+# Subtest: SHA-256 padding boundaries and arbitrary incremental chunks match node:crypto
+ok 16 - SHA-256 padding boundaries and arbitrary incremental chunks match node:crypto
+  ---
+  duration_ms: 459.653797
+  type: 'test'
+  ...
+# Subtest: SHA-256 forbids update or digest after finalization
+ok 17 - SHA-256 forbids update or digest after finalization
+  ---
+  duration_ms: 0.777362
+  type: 'test'
+  ...
+# Subtest: Browser-sized Blob hashing streams bounded slices and reports monotone progress
+ok 18 - Browser-sized Blob hashing streams bounded slices and reports monotone progress
+  ---
+  duration_ms: 253.626009
+  type: 'test'
+  ...
+# Subtest: File hashing observes cancellation
+ok 19 - File hashing observes cancellation
+  ---
+  duration_ms: 2.096747
+  type: 'test'
+  ...
+# Subtest: Every relative TypeScript import has a source target
+ok 20 - Every relative TypeScript import has a source target
+  ---
+  duration_ms: 97.042566
+  type: 'test'
+  ...
+# Subtest: All TypeScript/TSX source files transpile syntactically
+ok 21 - All TypeScript/TSX source files transpile syntactically
+  ---
+  duration_ms: 1409.251889
+  type: 'test'
+  ...
+# Subtest: Five applications and explicit migration files are present
+ok 22 - Five applications and explicit migration files are present
+  ---
+  duration_ms: 1.475074
+  type: 'test'
+  ...
+# Subtest: Next project deployment never points to API dist as a static site
+ok 23 - Next project deployment never points to API dist as a static site
+  ---
+  duration_ms: 1.569115
+  type: 'test'
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2504.343915

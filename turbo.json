@@ -1,0 +1,89 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**",
+        ".next/**",
+        "!.next/cache/**"
+      ],
+      "env": [
+        "NODE_ENV",
+        "API_BASE_URL",
+        "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
+        "APP_KIND",
+        "HOST_ALLOWLIST",
+        "STOREFRONT_KEY"
+      ]
+    },
+    "dev": {
+      "dependsOn": [
+        "^build"
+      ],
+      "cache": false,
+      "persistent": true
+    },
+    "typecheck": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": []
+    }
+  },
+  "globalPassThroughEnv": [
+    "*_APP_URL",
+    "*_OIDC_CLIENT_ID",
+    "*_OIDC_CLIENT_SECRET",
+    "ALLOW_INSECURE_LOCAL_AUTH",
+    "ALLOW_UNSCANNED_DEV_FIXTURES",
+    "API_BASE_URL",
+    "ASSET_PUBLIC_BASE_URL",
+    "AWS_*",
+    "BROWSER_ASSET_ORIGINS",
+    "CLAMAV_*",
+    "CODE_SCANNERS",
+    "CORS_ALLOWED_ORIGINS",
+    "DATABASE_URL",
+    "DOWNLOAD_*",
+    "EMAIL_PROVIDER",
+    "ENABLE_*_PROCESSOR",
+    "HOST",
+    "HOST_ALLOWLIST",
+    "INDEX_STOREFRONT",
+    "INTEGRATION_DATABASE_URL",
+    "LICENSE_SIGNING_SECRET",
+    "LOG_LEVEL",
+    "MAIL_FROM",
+    "MAX_UPLOAD_BYTES",
+    "MIGRATION_DATABASE_URL",
+    "NEXT_PUBLIC_*",
+    "NODE_ENV",
+    "OIDC_*",
+    "PAYMENTS_MODE",
+    "PAYOUT_RESERVE_DAYS",
+    "PLATFORM_FEE_BPS",
+    "PORT",
+    "PREVIEW_STOREFRONT",
+    "PROCESSOR_*",
+    "PRODUCTION_LAUNCH_APPROVED",
+    "REDIS_URL",
+    "S3_*",
+    "SESSION_*",
+    "SES_REGION",
+    "SMTP_*",
+    "STRIPE_*",
+    "TAX_MODE",
+    "TYPESENSE_*",
+    "UPLOAD_*",
+    "WORKER_*"
+  ]
+}

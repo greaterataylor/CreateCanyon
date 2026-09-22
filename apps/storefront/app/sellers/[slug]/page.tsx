@@ -1,0 +1,4 @@
+import {notFound} from 'next/navigation';
+import {ApiError,publicApi,storefrontContext} from '@createcanyon/web/server';
+import {PageHeading,ProductCard,EmptyState} from '@createcanyon/web/components';
+export default async function Seller({params}:{params:Promise<{slug:string}>}){const c=await storefrontContext();let data:any;try{data=await publicApi('/v1/seller-profile/'+encodeURIComponent((await params).slug)+'?channel='+c.key);}catch(e){if(e instanceof ApiError&&e.status===404)notFound();throw e;}return <div className="shell page"><PageHeading eyebrow="INDEPENDENT CREATOR" title={data.seller.displayName}>{data.seller.description}</PageHeading>{data.items.length?<div className="product-grid">{data.items.map((item:any)=><ProductCard item={item} key={item.listingId}/>)}</div>:<EmptyState title="No published assets on this channel yet."/>}</div>;}

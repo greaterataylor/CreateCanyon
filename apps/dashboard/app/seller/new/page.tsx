@@ -1,0 +1,1 @@
+import {PageHeading} from '@createcanyon/web/components';import {SellerCreate} from '../../../components/forms';export default function Page(){return <><PageHeading title="Create your seller profile">One organisation and one payout account for the whole network.</PageHeading><section className="panel"><SellerCreate/></section></>;}

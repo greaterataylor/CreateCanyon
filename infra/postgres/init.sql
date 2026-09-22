@@ -1,0 +1,5 @@
+-- LOCAL DEVELOPMENT ONLY. Do not reuse these credentials outside loopback development.
+CREATE ROLE createcanyon_app LOGIN PASSWORD 'local-app-password-change-me' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+CREATE ROLE keycloak LOGIN PASSWORD 'local-keycloak-database-change-me' NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+CREATE DATABASE keycloak OWNER keycloak;
+REVOKE CREATE ON SCHEMA public FROM PUBLIC;

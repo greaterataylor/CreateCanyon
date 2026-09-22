@@ -1,0 +1,44 @@
+{
+  "name": "createcanyon-network",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Secure multi-brand digital asset marketplace network for CreateCanyon and its specialist channels.",
+  "packageManager": "pnpm@11.15.1",
+  "engines": {
+    "node": ">=22.16.0 <25"
+  },
+  "scripts": {
+    "dev": "node scripts/with-env.mjs turbo dev --parallel",
+    "build": "node scripts/with-env.mjs turbo build --concurrency=1",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "db:generate": "pnpm --filter @createcanyon/database db:generate",
+    "db:migrate": "node scripts/with-env.mjs pnpm --filter @createcanyon/database db:migrate",
+    "db:seed": "node scripts/with-env.mjs pnpm --filter @createcanyon/database db:seed",
+    "db:studio": "pnpm --filter @createcanyon/database db:studio",
+    "check": "pnpm typecheck && pnpm test && pnpm test:offline && pnpm test:python && pnpm build",
+    "test:offline": "node --test tests/offline/*.test.mjs",
+    "test:integration": "node scripts/with-env.mjs tsx tests/integration/database.ts",
+    "test:e2e": "playwright test",
+    "infra:up": "docker compose -f infra/docker-compose.yml up -d",
+    "infra:down": "docker compose -f infra/docker-compose.yml down",
+    "lock": "pnpm install --lockfile-only --no-frozen-lockfile",
+    "db:grant": "node scripts/with-env.mjs pnpm --filter @createcanyon/database grant",
+    "processor:build": "docker build -f processors/Dockerfile -t createcanyon-processor:local .",
+    "test:python": "python3 -m unittest discover -s tests/python -v",
+    "demo:load": "node scripts/with-env.mjs pnpm --filter @createcanyon/workers seed:demo",
+    "release:check": "node scripts/release-check.mjs"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.4",
+    "turbo": "2.10.5",
+    "typescript": "5.9.3",
+    "@types/node": "22.18.0",
+    "tsx": "4.20.6",
+    "@playwright/test": "1.56.1",
+    "@createcanyon/database": "workspace:*"
+  }
+}
