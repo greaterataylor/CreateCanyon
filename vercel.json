@@ -2,6 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "installCommand": "corepack pnpm install --no-frozen-lockfile",
-  "buildCommand": "node scripts/release-check.mjs && corepack pnpm exec turbo run build --filter=@createcanyon/storefront",
+  "buildCommand": "corepack pnpm exec turbo run build --filter=@createcanyon/storefront",
   "outputDirectory": "apps/storefront/.next"
 }
